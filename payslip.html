@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Payslips - EAMA Payroll</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- PDF Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================== -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+
+        <!-- Logo -->
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="dashboard.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    dashboard
+                </span>
+                Dashboard
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="employees.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    badge
+                </span>
+                Employees
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="attendance.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    how_to_reg
+                </span>
+                Attendance
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="leave-management.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    event_busy
+                </span>
+                Leave
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="overtime.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    more_time
+                </span>
+                Overtime
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="payroll.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    payments
+                </span>
+                Payroll
+            </a>
+
+            <!-- ACTIVE -->
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+                href="payslip.html"
+                aria-current="page"
+            >
+                <span
+                    class="material-symbols-outlined text-[20px]"
+                    style="font-variation-settings: 'FILL' 1;"
+                >
+                    description
+                </span>
+                Payslips
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="reports.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    assessment
+                </span>
+                Reports
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="settings.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    settings
+                </span>
+                Settings
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="audit-log.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    history
+                </span>
+                Audit Log
+            </a>
+
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-3 border-t border-outline-variant/30">
+            <a
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+                href="javascript:void(0)"
+                data-action="logout"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    logout
+                </span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================================
+         MAIN APPLICATION
+    ========================================================== -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+
+            <h2 class="text-lg font-bold text-on-surface">
+                Payslip Distribution
+            </h2>
+
+        </header>
+
+
+        <!-- =====================================================
+             MAIN CONTENT
+        ====================================================== -->
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 h-full">
+
+                <!-- =================================================
+                     PAYSLIP LIST
+                ================================================== -->
+                <div class="lg:col-span-5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm flex flex-col overflow-hidden">
+
+                    <!-- Period Filter -->
+                    <div class="p-4 border-b border-outline-variant/30 bg-surface-container-low flex justify-between items-center">
+
+                        <select
+                            id="period-filter"
+                            class="px-3 py-1.5 bg-surface rounded-lg border border-outline-variant text-xs font-bold text-primary w-full"
+                        >
+                            <option value="">
+                                Loading periods...
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <!-- Payslip List -->
+                    <div
+                        class="overflow-y-auto flex-1 divide-y divide-outline-variant/10"
+                        id="payslip-list"
+                    >
+                        <p class="p-4 text-xs text-on-surface-variant text-center">
+                            Loading payslips...
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     PAYSLIP PREVIEW
+                ================================================== -->
+                <div class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm p-6 flex flex-col justify-between overflow-y-auto">
+
+                    <!-- Printable Payslip -->
+                    <div
+                        id="printable-payslip"
+                        class="p-4 bg-white rounded-lg"
+                    >
+
+                        <!-- Company Header -->
+                        <div class="text-center border-b border-outline-variant/30 pb-4 mb-4">
+
+                            <h2
+                                class="text-lg font-bold text-on-surface"
+                                id="ps-company-name"
+                            >
+                                EAMA GARMENTS
+                            </h2>
+
+                            <p
+                                class="text-xs text-on-surface-variant"
+                                id="ps-period-title"
+                            >
+                                Payslip
+                            </p>
+
+                        </div>
+
+
+                        <!-- Employee Information -->
+                        <div class="grid grid-cols-2 gap-2 text-xs mb-4">
+
+                            <div>
+                                <span class="text-on-surface-variant">
+                                    Name:
+                                </span>
+
+                                <strong id="ps-emp-name">
+                                    --
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span class="text-on-surface-variant">
+                                    Employee No:
+                                </span>
+
+                                <strong id="ps-emp-no">
+                                    --
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span class="text-on-surface-variant">
+                                    Department:
+                                </span>
+
+                                <span id="ps-emp-dept">
+                                    --
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-on-surface-variant">
+                                    Designation:
+                                </span>
+
+                                <span id="ps-emp-desig">
+                                    --
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Salary Components -->
+                        <div class="space-y-3 text-xs">
+
+                            <!-- Earnings -->
+                            <div class="p-3 bg-surface-container-low rounded-lg space-y-1">
+
+                                <p class="font-bold text-[#137333] uppercase">
+                                    Earnings
+                                </p>
+
+                                <div id="ps-earnings-rows">
+                                    <div class="text-on-surface-variant">
+                                        No earnings available.
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- Deductions -->
+                            <div class="p-3 bg-surface-container-low rounded-lg space-y-1">
+
+                                <p class="font-bold text-error uppercase">
+                                    Deductions
+                                </p>
+
+                                <div id="ps-deductions-rows">
+                                    <div class="text-on-surface-variant">
+                                        No deductions available.
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- Net Salary -->
+                            <div class="p-3 bg-primary text-on-primary rounded-lg flex justify-between font-bold text-sm">
+
+                                <span>
+                                    NET SALARY
+                                </span>
+
+                                <span id="ps-net-salary">
+                                    LKR 0.00
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PDF Button -->
+                    <div class="pt-4 border-t border-outline-variant/30 flex justify-end gap-3">
+
+                        <button
+                            id="btn-download-pdf"
+                            onclick="downloadPayslipPDF()"
+                            class="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-xs shadow-sm hover:bg-primary-container flex items-center gap-2 disabled:opacity-50"
+                            disabled
+                        >
+                            <span class="material-symbols-outlined text-[18px]">
+                                download
+                            </span>
+
+                            <span>
+                                Download PDF
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================================================
+         SUPABASE CLIENT
+    ========================================================== -->
+    <script src="supabase-client.js"></script>
+
+
+    <!-- =========================================================
+         PAGE JAVASCRIPT
+    ========================================================== -->
+    <script>
+
+        let payslips = [];
+        let selectedSlip = null;
+
+
+        /* =========================================================
+           LOAD PAYROLL PERIODS
+        ========================================================== */
+        async function loadPeriods() {
+
+            const select = document.getElementById('period-filter');
+
+            select.innerHTML = `
+                <option value="">
+                    Loading periods...
+                </option>
+            `;
+
+            try {
+
+                const { data, error } = await supabase
+                    .from('payroll_periods')
+                    .select('id, period_name, status, start_date')
+                    .order('start_date', {
+                        ascending: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                select.innerHTML = '';
+
+                if (!data || data.length === 0) {
+
+                    select.innerHTML = `
+                        <option value="">
+                            No payroll periods available
+                        </option>
+                    `;
+
+                    clearPayslipPreview();
+
+                    return;
+                }
+
+
+                data.forEach(period => {
+
+                    const option = document.createElement('option');
+
+                    option.value = period.id;
+                    option.textContent = `${period.period_name} [${period.status}]`;
+
+                    select.appendChild(option);
+
+                });
+
+
+                await fetchPayslips();
+
+            } catch (error) {
+
+                console.error('Failed to load payroll periods:', error);
+
+                select.innerHTML = `
+                    <option value="">
+                        Failed to load periods
+                    </option>
+                `;
+
+                showToast(
+                    'Failed to load payroll periods: ' + error.message,
+                    'error'
+                );
+
+            }
+
+        }
+
+
+        /* =========================================================
+           FETCH PAYSLIPS
+        ========================================================== */
+        async function fetchPayslips() {
+
+            const periodId =
+                document.getElementById('period-filter').value;
+
+            if (!periodId) {
+
+                payslips = [];
+
+                renderPayslipList();
+
+                clearPayslipPreview();
+
+                return;
+            }
+
+
+            const container =
+                document.getElementById('payslip-list');
+
+            container.innerHTML = `
+                <p class="p-4 text-xs text-on-surface-variant text-center">
+                    Loading payslips...
+                </p>
+            `;
+
+
+            try {
+
+                const { data, error } = await supabase
+
+                    .from('payslips')
+
+                    .select(`
+                        *,
+                        payroll_record:payroll_records(
+                            *,
+                            payroll_items(*)
+                        ),
+                        employee:employees(
+                            full_name,
+                            employee_number,
+                            department:departments(name),
+                            designation:designations(title)
+                        )
+                    `)
+
+                    .eq('payroll_period_id', periodId)
+
+                    .order('created_at', {
+                        ascending: false
+                    });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                payslips = data || [];
+
+                renderPayslipList();
+
+
+            } catch (error) {
+
+                console.error('Failed to load payslips:', error);
+
+                payslips = [];
+
+                container.innerHTML = `
+                    <div class="p-5 text-center">
+                        <span class="material-symbols-outlined text-error text-3xl">
+                            error
+                        </span>
+
+                        <p class="mt-2 text-xs font-semibold text-error">
+                            Failed to load payslips
+                        </p>
+
+                        <p class="mt-1 text-[10px] text-on-surface-variant">
+                            ${escapeHtml(error.message || 'Unknown error')}
+                        </p>
+                    </div>
+                `;
+
+                clearPayslipPreview();
+
+                showToast(
+                    'Failed to load payslips: ' + error.message,
+                    'error'
+                );
+
+            }
+
+        }
+
+
+        /* =========================================================
+           RENDER PAYSLIP LIST
+        ========================================================== */
+        function renderPayslipList() {
+
+            const container =
+                document.getElementById('payslip-list');
+
+            container.innerHTML = '';
+
+
+            if (!payslips.length) {
+
+                container.innerHTML = `
+                    <div class="p-6 text-center">
+
+                        <span class="material-symbols-outlined text-3xl text-on-surface-variant">
+                            description
+                        </span>
+
+                        <p class="mt-2 text-xs font-semibold text-on-surface-variant">
+                            No payslips issued
+                        </p>
+
+                        <p class="mt-1 text-[10px] text-on-surface-variant">
+                            No payslips have been issued for this period.
+                        </p>
+
+                    </div>
+                `;
+
+                clearPayslipPreview();
+
+                return;
+            }
+
+
+            payslips.forEach((payslip, index) => {
+
+                const employeeName =
+                    payslip.employee?.full_name || 'N/A';
+
+                const employeeNumber =
+                    payslip.employee?.employee_number || '';
+
+                const netSalary =
+                    payslip.payroll_record?.net_salary || 0;
+
+                const status =
+                    payslip.status || 'Issued';
+
+
+                const item = document.createElement('div');
+
+                item.className =
+                    'p-3.5 hover:bg-surface-container-low cursor-pointer transition-colors flex justify-between items-center text-xs';
+
+
+                item.innerHTML = `
+
+                    <div class="min-w-0">
+
+                        <p class="font-bold text-on-surface truncate">
+                            ${escapeHtml(employeeName)}
+                        </p>
+
+                        <p class="text-[10px] text-on-surface-variant">
+                            ${escapeHtml(employeeNumber)}
+                        </p>
+
+                    </div>
+
+
+                    <div class="text-right shrink-0 ml-3">
+
+                        <p class="font-bold text-primary">
+                            ${formatCurrency(netSalary)}
+                        </p>
+
+                        <span class="text-[10px] font-bold ${
+                            status === 'Issued'
+                                ? 'text-[#137333]'
+                                : 'text-on-surface-variant'
+                        }">
+                            ${escapeHtml(status)}
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                item.addEventListener(
+                    'click',
+                    () => selectPayslip(index)
+                );
+
+
+                container.appendChild(item);
+
+            });
+
+
+            selectPayslip(0);
+
+        }
+
+
+        /* =========================================================
+           SELECT PAYSLIP
+        ========================================================== */
+        function selectPayslip(index) {
+
+            selectedSlip = payslips[index];
+
+            if (!selectedSlip) {
+
+                clearPayslipPreview();
+
+                return;
+            }
+
+
+            const record =
+                selectedSlip.payroll_record || null;
+
+            const employee =
+                selectedSlip.employee || null;
+
+
+            /* Employee details */
+
+            document.getElementById('ps-emp-name').textContent =
+                employee?.full_name || 'N/A';
+
+            document.getElementById('ps-emp-no').textContent =
+                employee?.employee_number || '--';
+
+            document.getElementById('ps-emp-dept').textContent =
+                employee?.department?.name || '--';
+
+            document.getElementById('ps-emp-desig').textContent =
+                employee?.designation?.title || '--';
+
+
+            /* Period */
+
+            const periodSelect =
+                document.getElementById('period-filter');
+
+            const selectedPeriodText =
+                periodSelect.options[
+                    periodSelect.selectedIndex
+                ]?.textContent || 'Payslip';
+
+            document.getElementById('ps-period-title').textContent =
+                selectedPeriodText;
+
+
+            /* Net salary */
+
+            document.getElementById('ps-net-salary').textContent =
+                formatCurrency(record?.net_salary || 0);
+
+
+            /* Payroll items */
+
+            const items =
+                Array.isArray(record?.payroll_items)
+                    ? record.payroll_items
+                    : [];
+
+
+            const earnings =
+                items.filter(
+                    item => item.category === 'earning'
+                );
+
+
+            const deductions =
+                items.filter(
+                    item => item.category === 'deduction'
+                );
+
+
+            /* Render earnings */
+
+            const earningsContainer =
+                document.getElementById('ps-earnings-rows');
+
+
+            if (earnings.length === 0) {
+
+                earningsContainer.innerHTML = `
+                    <div class="text-on-surface-variant">
+                        No earnings available.
+                    </div>
+                `;
+
+            } else {
+
+                earningsContainer.innerHTML =
+                    earnings.map(item => `
+
+                        <div class="flex justify-between gap-4">
+
+                            <span>
+                                ${escapeHtml(item.name || 'Earning')}
+                            </span>
+
+                            <span class="font-medium whitespace-nowrap">
+                                ${formatCurrency(item.amount || 0)}
+                            </span>
+
+                        </div>
+
+                    `).join('');
+
+            }
+
+
+            /* Render deductions */
+
+            const deductionsContainer =
+                document.getElementById('ps-deductions-rows');
+
+
+            if (deductions.length === 0) {
+
+                deductionsContainer.innerHTML = `
+                    <div class="text-on-surface-variant">
+                        No deductions available.
+                    </div>
+                `;
+
+            } else {
+
+                deductionsContainer.innerHTML =
+                    deductions.map(item => `
+
+                        <div class="flex justify-between gap-4">
+
+                            <span>
+                                ${escapeHtml(item.name || 'Deduction')}
+                            </span>
+
+                            <span class="font-medium text-error whitespace-nowrap">
+                                -${formatCurrency(item.amount || 0)}
+                            </span>
+
+                        </div>
+
+                    `).join('');
+
+            }
+
+
+            /* Enable PDF button */
+
+            document.getElementById('btn-download-pdf').disabled =
+                false;
+
+        }
+
+
+        /* =========================================================
+           CLEAR PAYSLIP PREVIEW
+        ========================================================== */
+        function clearPayslipPreview() {
+
+            selectedSlip = null;
+
+            document.getElementById('ps-period-title').textContent =
+                'Payslip';
+
+            document.getElementById('ps-emp-name').textContent =
+                '--';
+
+            document.getElementById('ps-emp-no').textContent =
+                '--';
+
+            document.getElementById('ps-emp-dept').textContent =
+                '--';
+
+            document.getElementById('ps-emp-desig').textContent =
+                '--';
+
+            document.getElementById('ps-net-salary').textContent =
+                'LKR 0.00';
+
+
+            document.getElementById('ps-earnings-rows').innerHTML = `
+                <div class="text-on-surface-variant">
+                    No earnings available.
+                </div>
+            `;
+
+
+            document.getElementById('ps-deductions-rows').innerHTML = `
+                <div class="text-on-surface-variant">
+                    No deductions available.
+                </div>
+            `;
+
+
+            document.getElementById('btn-download-pdf').disabled =
+                true;
+
+        }
+
+
+        /* =========================================================
+           DOWNLOAD PAYSLIP AS PDF
+        ========================================================== */
+        async function downloadPayslipPDF() {
+
+            if (!selectedSlip) {
+
+                showToast(
+                    'Please select a payslip first.',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            if (
+                typeof html2pdf === 'undefined'
+            ) {
+
+                showToast(
+                    'PDF generator is unavailable. Please refresh the page.',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            const element =
+                document.getElementById('printable-payslip');
+
+
+            const employeeNumber =
+                selectedSlip.employee?.employee_number ||
+                'EMP';
+
+
+            const periodName =
+                document.getElementById('ps-period-title')
+                    .textContent
+                    .replace(/[^a-zA-Z0-9_-]/g, '_');
+
+
+            const button =
+                document.getElementById('btn-download-pdf');
+
+
+            const originalButtonHTML =
+                button.innerHTML;
+
+
+            button.disabled = true;
+
+            button.innerHTML = `
+                <span class="material-symbols-outlined text-[18px] animate-spin">
+                    progress_activity
+                </span>
+
+                <span>
+                    Generating...
+                </span>
+            `;
+
+
+            try {
+
+                const options = {
+
+                    margin: 0.5,
+
+                    filename:
+                        `Payslip_${employeeNumber}_${periodName}.pdf`,
+
+                    image: {
+                        type: 'jpeg',
+                        quality: 0.98
+                    },
+
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    },
+
+                    jsPDF: {
+                        unit: 'in',
+                        format: 'letter',
+                        orientation: 'portrait'
+                    }
+
+                };
+
+
+                await html2pdf()
+                    .set(options)
+                    .from(element)
+                    .save();
+
+
+            } catch (error) {
+
+                console.error(
+                    'Payslip PDF generation failed:',
+                    error
+                );
+
+                showToast(
+                    'Failed to generate PDF: ' + error.message,
+                    'error'
+                );
+
+            } finally {
+
+                button.disabled = false;
+
+                button.innerHTML =
+                    originalButtonHTML;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           HTML ESCAPE HELPER
+        ========================================================== */
+        function escapeHtml(value) {
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
+
+
+        /* =========================================================
+           PERIOD FILTER
+        ========================================================== */
+        document
+            .getElementById('period-filter')
+            .addEventListener(
+                'change',
+                fetchPayslips
+            );
+
+
+        /* =========================================================
+           INITIALIZE PAGE
+        ========================================================== */
+        document.addEventListener(
+            'DOMContentLoaded',
+            async () => {
+
+                try {
+
+                    const user =
+                        await requireAuth([
+                            'admin',
+                            'hr_manager',
+                            'department_manager'
+                        ]);
+
+
+                    if (!user) {
+                        return;
+                    }
+
+
+                    await loadPeriods();
+
+                } catch (error) {
+
+                    console.error(
+                        'Payslip page initialization failed:',
+                        error
+                    );
+
+                    showToast(
+                        error.message ||
+                        'Failed to initialize payslip page.',
+                        'error'
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Employee Profile - EAMA Payroll</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex">
+
+<div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Header -->
+    <header class="w-full h-16 bg-surface-container-lowest border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+
+        <div class="flex items-center gap-3">
+
+            <a
+                href="employees.html"
+                class="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant"
+                aria-label="Back to employees"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    arrow_back
+                </span>
+            </a>
+
+            <h2 class="text-base font-bold text-on-surface">
+                Employee Record
+            </h2>
+
+        </div>
+
+        <button
+            id="update-compensation-btn"
+            type="button"
+            onclick="openSalaryModal()"
+            class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-semibold shadow-sm hover:bg-primary-container transition-colors"
+        >
+            Update Compensation
+        </button>
+
+    </header>
+
+
+    <!-- Main -->
+    <main class="flex-1 overflow-y-auto p-6">
+
+        <div class="max-w-[1280px] mx-auto w-full space-y-6">
+
+            <!-- Employee Hero -->
+            <section class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+
+                    <div class="flex items-center gap-5">
+
+                        <div
+                            class="w-20 h-20 rounded-full bg-primary-container text-on-primary text-2xl font-bold flex items-center justify-center shrink-0"
+                            id="avatar-initials"
+                        >
+                            --
+                        </div>
+
+                        <div>
+
+                            <h1
+                                class="text-xl font-bold text-on-surface"
+                                id="emp-name"
+                            >
+                                Loading...
+                            </h1>
+
+                            <p
+                                class="text-xs text-on-surface-variant mt-0.5"
+                                id="emp-id-dept"
+                            >
+                                ID: --- • Department: ---
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-2 flex-wrap">
+
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F4EA] text-[#137333]"
+                                    id="emp-status"
+                                >
+                                    Loading
+                                </span>
+
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-surface-container text-on-surface-variant"
+                                    id="emp-type"
+                                >
+                                    ---
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Metric Cards -->
+            <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                    <span class="text-xs text-on-surface-variant font-medium">
+                        Basic Salary
+                    </span>
+
+                    <h3
+                        class="text-lg font-bold text-on-surface mt-1"
+                        id="stat-basic-sal"
+                    >
+                        LKR 0.00
+                    </h3>
+                </div>
+
+
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                    <span class="text-xs text-on-surface-variant font-medium">
+                        Joined Date
+                    </span>
+
+                    <h3
+                        class="text-lg font-bold text-on-surface mt-1"
+                        id="stat-join-date"
+                    >
+                        --
+                    </h3>
+                </div>
+
+
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                    <span class="text-xs text-on-surface-variant font-medium">
+                        Leave Remaining (Year)
+                    </span>
+
+                    <h3
+                        class="text-lg font-bold text-[#b06000] mt-1"
+                        id="stat-leave-rem"
+                    >
+                        -- Days
+                    </h3>
+                </div>
+
+
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                    <span class="text-xs text-on-surface-variant font-medium">
+                        Hourly OT Rate
+                    </span>
+
+                    <h3
+                        class="text-lg font-bold text-primary mt-1"
+                        id="stat-ot-rate"
+                    >
+                        LKR 0.00
+                    </h3>
+                </div>
+
+            </section>
+
+
+            <!-- Salary History -->
+            <section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden p-5 space-y-4">
+
+                <div class="flex items-center justify-between gap-3">
+
+                    <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider">
+                        Salary History & Adjustments
+                    </h3>
+
+                </div>
+
+                <div class="overflow-x-auto">
+
+                    <table class="w-full text-left text-xs">
+
+                        <thead class="bg-surface-container-low text-on-surface-variant uppercase font-semibold border-b border-outline-variant/30">
+
+                            <tr>
+
+                                <th class="py-2.5 px-3">
+                                    Effective Range
+                                </th>
+
+                                <th class="py-2.5 px-3">
+                                    Basic Salary
+                                </th>
+
+                                <th class="py-2.5 px-3">
+                                    Allowances
+                                </th>
+
+                                <th class="py-2.5 px-3">
+                                    Fixed Deductions
+                                </th>
+
+                                <th class="py-2.5 px-3">
+                                    OT Rate
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="salary-history-tbody"
+                            class="divide-y divide-outline-variant/10 text-on-surface"
+                        >
+
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="py-4 text-center text-on-surface-variant"
+                                >
+                                    Loading salary history...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- Salary Update Modal -->
+<div
+    id="salaryModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+>
+
+    <div
+        class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onclick="closeSalaryModal()"
+    ></div>
+
+
+    <div
+        class="relative bg-surface-container-lowest rounded-xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/30 z-10 space-y-4"
+    >
+
+        <div class="flex items-start justify-between gap-4">
+
+            <div>
+
+                <h3 class="text-base font-bold text-on-surface">
+                    Update Employee Salary
+                </h3>
+
+                <p class="text-xs text-on-surface-variant mt-1">
+                    This creates a new salary revision while preserving previous compensation records.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                onclick="closeSalaryModal()"
+                class="p-1 rounded-full text-on-surface-variant hover:bg-surface-container"
+                aria-label="Close"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    close
+                </span>
+            </button>
+
+        </div>
+
+
+        <form
+            id="salary-increment-form"
+            class="space-y-3 text-xs"
+        >
+
+            <div>
+
+                <label
+                    class="block font-semibold text-on-surface-variant mb-1"
+                    for="new-basic"
+                >
+                    New Basic Salary (LKR) *
+                </label>
+
+                <input
+                    id="new-basic"
+                    name="newBasic"
+                    required
+                    type="number"
+                    min="0"
+                    step="100"
+                    class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                />
+
+            </div>
+
+
+            <div>
+
+                <label
+                    class="block font-semibold text-on-surface-variant mb-1"
+                    for="new-ot-rate"
+                >
+                    Hourly OT Rate (LKR)
+                </label>
+
+                <input
+                    id="new-ot-rate"
+                    name="newOtRate"
+                    type="number"
+                    min="0"
+                    step="10"
+                    class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                />
+
+            </div>
+
+
+            <div>
+
+                <label
+                    class="block font-semibold text-on-surface-variant mb-1"
+                    for="effective-from"
+                >
+                    Effective Date *
+                </label>
+
+                <input
+                    id="effective-from"
+                    name="effectiveFrom"
+                    required
+                    type="date"
+                    class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                />
+
+            </div>
+
+
+            <div class="pt-3 border-t border-outline-variant/30 flex justify-end gap-2">
+
+                <button
+                    type="button"
+                    onclick="closeSalaryModal()"
+                    class="px-4 py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    id="save-sal-btn"
+                    class="px-5 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:bg-primary-container disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Commit Increment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script src="supabase-client.js"></script>
+
+<script>
+
+    let currentEmployeeId =
+        new URLSearchParams(window.location.search).get('id');
+
+
+    /*
+     * Open / close salary modal
+     */
+    function openSalaryModal() {
+
+        if (!currentEmployeeId) {
+            showToast('No employee selected.', 'error');
+            return;
+        }
+
+        const modal = document.getElementById('salaryModal');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const effectiveInput =
+            document.querySelector('[name="effectiveFrom"]');
+
+        if (effectiveInput && !effectiveInput.value) {
+
+            effectiveInput.value =
+                new Date().toISOString().split('T')[0];
+
+        }
+
+    }
+
+
+    function closeSalaryModal() {
+
+        const modal = document.getElementById('salaryModal');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+    }
+
+
+    /*
+     * Escape HTML before inserting database values
+     * into HTML.
+     */
+    function escapeHTML(value) {
+
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+    }
+
+
+    /*
+     * Load employee profile
+     */
+    async function loadProfile() {
+
+        if (!currentEmployeeId) {
+
+            showToast(
+                'No employee ID specified in the URL.',
+                'error'
+            );
+
+            document.getElementById('emp-name').textContent =
+                'Employee Not Found';
+
+            return;
+
+        }
+
+
+        const {
+            data: emp,
+            error
+        } = await supabase
+            .from('employees')
+            .select(`
+                *,
+                department:departments(name),
+                designation:designations(title),
+                salary_history(*),
+                leave_balances(
+                    *,
+                    leave_type:leave_types(name)
+                )
+            `)
+            .eq('id', currentEmployeeId)
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                'Employee profile error:',
+                error
+            );
+
+            showToast(
+                'Failed to load employee profile: ' +
+                error.message,
+                'error'
+            );
+
+            document.getElementById('emp-name').textContent =
+                'Unable to Load Employee';
+
+            return;
+
+        }
+
+
+        if (!emp) {
+
+            showToast(
+                'Employee record not found.',
+                'error'
+            );
+
+            document.getElementById('emp-name').textContent =
+                'Employee Not Found';
+
+            return;
+
+        }
+
+
+        /*
+         * Basic employee information
+         */
+        const fullName =
+            emp.full_name || 'Unnamed Employee';
+
+        const initials =
+            fullName
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(name => name.charAt(0))
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+
+
+        document.getElementById('emp-name').textContent =
+            fullName;
+
+        document.getElementById('avatar-initials').textContent =
+            initials || '--';
+
+
+        document.getElementById('emp-id-dept').textContent =
+            `ID: ${emp.employee_number || '---'} • ` +
+            `${emp.department?.name || 'No Department'} • ` +
+            `${emp.designation?.title || 'No Designation'}`;
+
+
+        document.getElementById('emp-status').textContent =
+            emp.status || 'Unknown';
+
+
+        document.getElementById('emp-type').textContent =
+            emp.employment_type || 'Not specified';
+
+
+        document.getElementById('stat-join-date').textContent =
+            formatDate(emp.joining_date);
+
+
+        /*
+         * Salary history
+         */
+        const salaryHistory =
+            Array.isArray(emp.salary_history)
+                ? [...emp.salary_history]
+                : [];
+
+
+        salaryHistory.sort(
+            (a, b) =>
+                new Date(b.effective_from || 0) -
+                new Date(a.effective_from || 0)
+        );
+
+
+        const activeSalary =
+            salaryHistory.find(
+                salary => !salary.effective_to
+            ) ||
+            salaryHistory[0];
+
+
+        if (activeSalary) {
+
+            document.getElementById('stat-basic-sal').textContent =
+                formatCurrency(activeSalary.basic_salary);
+
+            document.getElementById('stat-ot-rate').textContent =
+                formatCurrency(activeSalary.ot_hourly_rate);
+
+        } else {
+
+            document.getElementById('stat-basic-sal').textContent =
+                formatCurrency(0);
+
+            document.getElementById('stat-ot-rate').textContent =
+                formatCurrency(0);
+
+        }
+
+
+        /*
+         * Leave balance
+         */
+        const currentYear =
+            new Date().getFullYear();
+
+
+        const leaveBalances =
+            Array.isArray(emp.leave_balances)
+                ? emp.leave_balances
+                : [];
+
+
+        const currentYearBalances =
+            leaveBalances.filter(
+                balance =>
+                    Number(balance.year) === currentYear
+            );
+
+
+        let remainingDays = 0;
+
+
+        if (currentYearBalances.length > 0) {
+
+            remainingDays =
+                currentYearBalances.reduce(
+                    (total, balance) => {
+
+                        const allocated =
+                            parseFloat(
+                                balance.total_allocated || 0
+                            );
+
+                        const used =
+                            parseFloat(
+                                balance.used_days || 0
+                            );
+
+                        const remaining =
+                            balance.remaining_days !== undefined &&
+                            balance.remaining_days !== null
+                                ? parseFloat(balance.remaining_days)
+                                : allocated - used;
+
+                        return total + Math.max(0, remaining);
+
+                    },
+                    0
+                );
+
+        }
+
+
+        document.getElementById('stat-leave-rem').textContent =
+            `${remainingDays.toFixed(1)} Days`;
+
+
+        /*
+         * Salary history table
+         */
+        const tbody =
+            document.getElementById('salary-history-tbody');
+
+        tbody.innerHTML = '';
+
+
+        if (salaryHistory.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="py-4 text-center text-on-surface-variant"
+                    >
+                        No salary records found.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            salaryHistory.forEach(sh => {
+
+                const effectiveFrom =
+                    formatDate(sh.effective_from);
+
+                const effectiveTo =
+                    sh.effective_to
+                        ? escapeHTML(formatDate(sh.effective_to))
+                        : '<span class="text-[#137333] font-bold">Present</span>';
+
+
+                const housing =
+                    parseFloat(
+                        sh.housing_allowance || 0
+                    );
+
+                const transport =
+                    parseFloat(
+                        sh.transport_allowance || 0
+                    );
+
+                const other =
+                    parseFloat(
+                        sh.other_allowance || 0
+                    );
+
+                const allowanceTotal =
+                    housing +
+                    transport +
+                    other;
+
+
+                const fixedDeduction =
+                    parseFloat(
+                        sh.fixed_deduction || 0
+                    );
+
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+
+                        <td class="py-2.5 px-3 font-medium">
+                            ${escapeHTML(effectiveFrom)}
+                            &rarr;
+                            ${effectiveTo}
+                        </td>
+
+                        <td class="py-2.5 px-3 font-bold">
+                            ${escapeHTML(formatCurrency(sh.basic_salary))}
+                        </td>
+
+                        <td class="py-2.5 px-3">
+                            ${escapeHTML(formatCurrency(allowanceTotal))}
+                        </td>
+
+                        <td class="py-2.5 px-3 text-error">
+                            -${escapeHTML(formatCurrency(fixedDeduction))}
+                        </td>
+
+                        <td class="py-2.5 px-3">
+                            ${escapeHTML(formatCurrency(sh.ot_hourly_rate))}
+                        </td>
+
+                    </tr>
+                `;
+
+            });
+
+        }
+
+    }
+
+
+    /*
+     * Save new salary revision
+     */
+    document
+        .getElementById('salary-increment-form')
+        .addEventListener('submit', async function (event) {
+
+            event.preventDefault();
+
+
+            if (!currentEmployeeId) {
+
+                showToast(
+                    'No employee selected.',
+                    'error'
+                );
+
+                return;
+
+            }
+
+
+            const form = event.target;
+
+            const button =
+                document.getElementById('save-sal-btn');
+
+
+            const newBasic =
+                parseFloat(form.newBasic.value);
+
+            const newOtRate =
+                parseFloat(form.newOtRate.value || 0);
+
+            const effectiveFrom =
+                form.effectiveFrom.value;
+
+
+            if (
+                !Number.isFinite(newBasic) ||
+                newBasic < 0
+            ) {
+
+                showToast(
+                    'Please enter a valid basic salary.',
+                    'error'
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !Number.isFinite(newOtRate) ||
+                newOtRate < 0
+            ) {
+
+                showToast(
+                    'Please enter a valid OT rate.',
+                    'error'
+                );
+
+                return;
+
+            }
+
+
+            if (!effectiveFrom) {
+
+                showToast(
+                    'Please select an effective date.',
+                    'error'
+                );
+
+                return;
+
+            }
+
+
+            button.disabled = true;
+            button.textContent = 'Saving...';
+
+
+            try {
+
+                /*
+                 * Get the currently active salary record first.
+                 */
+                const {
+                    data: currentSalary,
+                    error: currentSalaryError
+                } = await supabase
+                    .from('salary_history')
+                    .select('id,effective_from,effective_to')
+                    .eq('employee_id', currentEmployeeId)
+                    .is('effective_to', null)
+                    .order('effective_from', {
+                        ascending: false
+                    })
+                    .limit(1)
+                    .maybeSingle();
+
+
+                if (currentSalaryError) {
+                    throw currentSalaryError;
+                }
+
+
+                /*
+                 * Do not allow a new revision before
+                 * the employee's current salary begins.
+                 */
+                if (
+                    currentSalary &&
+                    currentSalary.effective_from &&
+                    effectiveFrom <= currentSalary.effective_from
+                ) {
+
+                    throw new Error(
+                        'The new effective date must be after the current salary effective date.'
+                    );
+
+                }
+
+
+                /*
+                 * Close the current salary one day before
+                 * the new salary starts.
+                 */
+                if (currentSalary) {
+
+                    const effectiveDate =
+                        new Date(
+                            `${effectiveFrom}T00:00:00`
+                        );
+
+
+                    effectiveDate.setDate(
+                        effectiveDate.getDate() - 1
+                    );
+
+
+                    const previousDate =
+                        effectiveDate
+                            .toISOString()
+                            .split('T')[0];
+
+
+                    const {
+                        error: closeError
+                    } = await supabase
+                        .from('salary_history')
+                        .update({
+                            effective_to: previousDate
+                        })
+                        .eq('id', currentSalary.id);
+
+
+                    if (closeError) {
+                        throw closeError;
+                    }
+
+                }
+
+
+                /*
+                 * Insert the new salary tier.
+                 */
+                const {
+                    error: insertError
+                } = await supabase
+                    .from('salary_history')
+                    .insert([{
+                        employee_id: currentEmployeeId,
+                        basic_salary: newBasic,
+                        ot_hourly_rate: newOtRate,
+                        effective_from: effectiveFrom,
+                        effective_to: null
+                    }]);
+
+
+                if (insertError) {
+                    throw insertError;
+                }
+
+
+                showToast(
+                    'Compensation tier updated successfully.',
+                    'success'
+                );
+
+
+                closeSalaryModal();
+
+                form.reset();
+
+                await loadProfile();
+
+            } catch (error) {
+
+                console.error(
+                    'Salary update error:',
+                    error
+                );
+
+                showToast(
+                    error.message ||
+                    'Failed to update compensation.',
+                    'error'
+                );
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = 'Commit Increment';
+
+            }
+
+        });
+
+
+    /*
+     * Authentication + initial loading
+     */
+    document.addEventListener(
+        'DOMContentLoaded',
+        async () => {
+
+            const user =
+                await requireAuth([
+                    'admin',
+                    'hr_manager',
+                    'department_manager'
+                ]);
+
+
+            if (!user) {
+                return;
+            }
+
+
+            await loadProfile();
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

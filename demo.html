@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Employee Portal - EAMA Payroll</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-surface-container-lowest border-b border-outline-variant/30 h-16 flex items-center justify-between px-8 shrink-0">
+
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <h1 class="text-sm font-bold text-primary">
+                EAMA Employee Self-Service
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+
+            <span
+                class="text-xs font-bold text-on-surface"
+                id="portal-emp-name"
+            >
+                Loading...
+            </span>
+
+            <button
+                type="button"
+                onclick="logout()"
+                class="text-xs text-error font-semibold hover:underline"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- Main -->
+    <main class="flex-1 p-8 max-w-[1200px] mx-auto w-full space-y-6 overflow-y-auto">
+
+        <!-- Leave Balance & Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Leave Balance -->
+            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+
+                <div>
+                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                        Annual Leave Balance
+                    </h3>
+
+                    <div
+                        class="text-3xl font-bold text-primary mt-2"
+                        id="portal-leave-rem"
+                    >
+                        -- Days
+                    </div>
+                </div>
+
+                <div
+                    class="pt-4 border-t border-outline-variant/30 flex justify-between gap-2 text-xs text-on-surface-variant"
+                    id="portal-leave-details"
+                >
+                    <span>Used: --</span>
+                    <span>Pending: --</span>
+                </div>
+
+            </div>
+
+
+            <!-- Request Leave -->
+            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+
+                <div>
+                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                        Leave Application
+                    </h3>
+
+                    <p class="text-xs text-on-surface-variant mt-1">
+                        Submit paid annual, medical, or casual leave.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="openLeaveModal()"
+                    class="w-full py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold shadow-sm hover:bg-primary-container mt-4"
+                >
+                    Apply for Leave
+                </button>
+
+            </div>
+
+
+            <!-- Overtime -->
+            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+
+                <div>
+                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                        Overtime Claim
+                    </h3>
+
+                    <p class="text-xs text-on-surface-variant mt-1">
+                        Submit approved shift or holiday overtime.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="openOtModal()"
+                    class="w-full py-2.5 bg-surface-container text-primary border border-primary rounded-lg text-xs font-bold hover:bg-primary hover:text-white mt-4"
+                >
+                    Log Overtime
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Attendance & Payslip -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Attendance -->
+            <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 shadow-sm space-y-3">
+
+                <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface">
+                    Recent Attendance
+                </h3>
+
+                <div
+                    class="divide-y divide-outline-variant/10 text-xs"
+                    id="portal-attendance-list"
+                >
+                    <p class="py-2 text-on-surface-variant">
+                        Loading records...
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Payslip -->
+            <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 shadow-sm space-y-3">
+
+                <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface">
+                    Latest Released Payslip
+                </h3>
+
+                <div
+                    id="portal-payslip-content"
+                    class="text-xs space-y-2"
+                >
+                    <p class="text-on-surface-variant">
+                        Loading payslip...
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================================
+         LEAVE MODAL
+    ========================================================== -->
+
+    <div
+        id="leaveModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    >
+
+        <div
+            class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onclick="closeLeaveModal()"
+        ></div>
+
+        <div class="relative bg-surface-container-lowest rounded-xl max-w-sm w-full p-6 shadow-2xl border border-outline-variant/30 z-10 space-y-4">
+
+            <div class="flex items-center justify-between">
+
+                <h3 class="text-base font-bold text-on-surface">
+                    Apply for Leave
+                </h3>
+
+                <button
+                    type="button"
+                    onclick="closeLeaveModal()"
+                    class="w-7 h-7 rounded-lg hover:bg-surface-container flex items-center justify-center"
+                >
+                    <span class="material-symbols-outlined text-[18px]">
+                        close
+                    </span>
+                </button>
+
+            </div>
+
+
+            <form
+                id="emp-leave-form"
+                class="space-y-3 text-xs"
+            >
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Leave Type *
+                    </label>
+
+                    <select
+                        name="leaveTypeId"
+                        id="portal-leave-type-select"
+                        required
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    >
+                        <option value="">
+                            Loading leave types...
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="grid grid-cols-2 gap-2">
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Start Date *
+                        </label>
+
+                        <input
+                            name="startDate"
+                            required
+                            type="date"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            End Date *
+                        </label>
+
+                        <input
+                            name="endDate"
+                            required
+                            type="date"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+                </div>
+
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Total Days *
+                    </label>
+
+                    <input
+                        name="totalDays"
+                        required
+                        type="number"
+                        step="0.5"
+                        min="0.5"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    />
+                </div>
+
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Reason
+                    </label>
+
+                    <textarea
+                        name="reason"
+                        rows="2"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    ></textarea>
+                </div>
+
+
+                <div class="pt-3 border-t border-outline-variant/30 flex justify-end gap-2">
+
+                    <button
+                        type="button"
+                        onclick="closeLeaveModal()"
+                        class="px-4 py-2 border border-outline-variant rounded-lg"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="btn-submit-leave"
+                        class="px-5 py-2 bg-primary text-on-primary rounded-lg font-semibold"
+                    >
+                        Submit Request
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         OVERTIME MODAL
+    ========================================================== -->
+
+    <div
+        id="otModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    >
+
+        <div
+            class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onclick="closeOtModal()"
+        ></div>
+
+        <div class="relative bg-surface-container-lowest rounded-xl max-w-sm w-full p-6 shadow-2xl border border-outline-variant/30 z-10 space-y-4">
+
+            <div class="flex items-center justify-between">
+
+                <h3 class="text-base font-bold text-on-surface">
+                    Submit Overtime Claim
+                </h3>
+
+                <button
+                    type="button"
+                    onclick="closeOtModal()"
+                    class="w-7 h-7 rounded-lg hover:bg-surface-container flex items-center justify-center"
+                >
+                    <span class="material-symbols-outlined text-[18px]">
+                        close
+                    </span>
+                </button>
+
+            </div>
+
+
+            <form
+                id="emp-ot-form"
+                class="space-y-3 text-xs"
+            >
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Date *
+                    </label>
+
+                    <input
+                        name="otDate"
+                        required
+                        type="date"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    />
+                </div>
+
+
+                <div class="grid grid-cols-2 gap-2">
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Hours *
+                        </label>
+
+                        <input
+                            name="otHours"
+                            required
+                            type="number"
+                            step="0.5"
+                            min="0.5"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Shift Type *
+                        </label>
+
+                        <select
+                            name="otType"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm font-semibold"
+                        >
+                            <option value="Normal">
+                                Normal (1.5x)
+                            </option>
+
+                            <option value="Weekend">
+                                Weekend (2.0x)
+                            </option>
+
+                            <option value="Holiday">
+                                Holiday (2.5x)
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Reason / Justification
+                    </label>
+
+                    <textarea
+                        name="otReason"
+                        rows="2"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    ></textarea>
+                </div>
+
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Timesheet File (Private PDF/Image)
+                    </label>
+
+                    <input
+                        name="otFile"
+                        type="file"
+                        accept=".pdf,image/jpeg,image/png,image/webp"
+                        class="w-full text-xs text-on-surface-variant"
+                    />
+                </div>
+
+
+                <div class="pt-3 border-t border-outline-variant/30 flex justify-end gap-2">
+
+                    <button
+                        type="button"
+                        onclick="closeOtModal()"
+                        class="px-4 py-2 border border-outline-variant rounded-lg"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="btn-submit-ot"
+                        class="px-5 py-2 bg-primary text-on-primary rounded-lg font-semibold"
+                    >
+                        Submit Claim
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Supabase Client -->
+    <script src="supabase-client.js"></script>
+
+
+    <script>
+
+        /* =========================================================
+           GLOBAL STATE
+        ========================================================== */
+
+        let myEmpRecord = null;
+
+
+        /* =========================================================
+           HTML ESCAPE
+        ========================================================== */
+
+        function escapeHTML(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return '';
+            }
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
+
+
+        /* =========================================================
+           MODAL CONTROLS
+        ========================================================== */
+
+        function openLeaveModal() {
+
+            const modal =
+                document.getElementById('leaveModal');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+        }
+
+
+        function closeLeaveModal() {
+
+            const modal =
+                document.getElementById('leaveModal');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+        }
+
+
+        function openOtModal() {
+
+            const modal =
+                document.getElementById('otModal');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+        }
+
+
+        function closeOtModal() {
+
+            const modal =
+                document.getElementById('otModal');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+        }
+
+
+        /* =========================================================
+           LOAD EMPLOYEE PORTAL
+        ========================================================== */
+
+        async function initPortal() {
+
+            try {
+
+                myEmpRecord = await getCurrentEmployee();
+
+
+                if (!myEmpRecord) {
+
+                    showToast(
+                        'No active employee profile linked to your login.',
+                        'error'
+                    );
+
+                    document.getElementById('portal-emp-name').textContent =
+                        'Employee profile not found';
+
+                    return;
+
+                }
+
+
+                /* -------------------------------------------------
+                   Employee Header
+                ------------------------------------------------- */
+
+                document.getElementById('portal-emp-name').textContent =
+                    `${myEmpRecord.full_name || 'Employee'} (${myEmpRecord.employee_number || '--'})`;
+
+
+                /* -------------------------------------------------
+                   Leave Balance
+                ------------------------------------------------- */
+
+                const year =
+                    new Date().getFullYear();
+
+
+                const {
+                    data: balances,
+                    error: balanceError
+                } = await supabase
+                    .from('leave_balances')
+                    .select('*, leave_type:leave_types(name)')
+                    .eq('employee_id', myEmpRecord.id)
+                    .eq('year', year);
+
+
+                if (balanceError) {
+
+                    console.error(
+                        'EAMA Payroll: Failed to load leave balance:',
+                        balanceError
+                    );
+
+                }
+
+
+                const primaryBalance =
+                    (balances || [])[0];
+
+
+                if (primaryBalance) {
+
+                    const totalAllocated =
+                        Number(primaryBalance.total_allocated || 0);
+
+                    const usedDays =
+                        Number(primaryBalance.used_days || 0);
+
+                    const pendingDays =
+                        Number(primaryBalance.pending_days || 0);
+
+                    const remaining =
+                        totalAllocated - usedDays - pendingDays;
+
+
+                    document.getElementById('portal-leave-rem').textContent =
+                        `${Math.max(remaining, 0)} Days`;
+
+
+                    document.getElementById('portal-leave-details').innerHTML = `
+                        <span>
+                            Allocated: ${escapeHTML(totalAllocated)}
+                        </span>
+
+                        <span>
+                            Used: ${escapeHTML(usedDays)}
+                        </span>
+
+                        <span>
+                            Pending: ${escapeHTML(pendingDays)}
+                        </span>
+                    `;
+
+                } else {
+
+                    document.getElementById('portal-leave-rem').textContent =
+                        '-- Days';
+
+                    document.getElementById('portal-leave-details').innerHTML = `
+                        <span>No leave balance available</span>
+                    `;
+
+                }
+
+
+                /* -------------------------------------------------
+                   Leave Types
+                ------------------------------------------------- */
+
+                const {
+                    data: leaveTypes,
+                    error: leaveTypeError
+                } = await supabase
+                    .from('leave_types')
+                    .select('id, name')
+                    .order('name');
+
+
+                if (leaveTypeError) {
+
+                    console.error(
+                        'EAMA Payroll: Failed to load leave types:',
+                        leaveTypeError
+                    );
+
+                }
+
+
+                const leaveSelect =
+                    document.getElementById(
+                        'portal-leave-type-select'
+                    );
+
+
+                leaveSelect.innerHTML = '';
+
+
+                if (
+                    !leaveTypes ||
+                    leaveTypes.length === 0
+                ) {
+
+                    leaveSelect.innerHTML = `
+                        <option value="">
+                            No leave types available
+                        </option>
+                    `;
+
+                } else {
+
+                    leaveTypes.forEach(
+                        leaveType => {
+
+                            const option =
+                                document.createElement('option');
+
+                            option.value =
+                                leaveType.id;
+
+                            option.textContent =
+                                leaveType.name;
+
+                            leaveSelect.appendChild(option);
+
+                        }
+                    );
+
+                }
+
+
+                /* -------------------------------------------------
+                   Recent Attendance
+                ------------------------------------------------- */
+
+                const {
+                    data: attendance,
+                    error: attendanceError
+                } = await supabase
+                    .from('attendance')
+                    .select('*')
+                    .eq('employee_id', myEmpRecord.id)
+                    .order('date', {
+                        ascending: false
+                    })
+                    .limit(5);
+
+
+                if (attendanceError) {
+
+                    console.error(
+                        'EAMA Payroll: Failed to load attendance:',
+                        attendanceError
+                    );
+
+                }
+
+
+                const attendanceList =
+                    document.getElementById(
+                        'portal-attendance-list'
+                    );
+
+
+                attendanceList.innerHTML = '';
+
+
+                if (
+                    !attendance ||
+                    attendance.length === 0
+                ) {
+
+                    attendanceList.innerHTML = `
+                        <p class="py-2 text-on-surface-variant">
+                            No attendance records found.
+                        </p>
+                    `;
+
+                } else {
+
+                    attendance.forEach(
+                        record => {
+
+                            const row =
+                                document.createElement('div');
+
+                            row.className =
+                                'py-2 flex justify-between gap-3';
+
+
+                            let formattedDate =
+                                record.date || '--';
+
+
+                            if (
+                                typeof formatDate === 'function' &&
+                                record.date
+                            ) {
+
+                                try {
+
+                                    formattedDate =
+                                        formatDate(record.date);
+
+                                } catch (_) {}
+
+                            }
+
+
+                            const checkIn =
+                                record.check_in || '--';
+
+                            const checkOut =
+                                record.check_out || '--';
+
+                            const status =
+                                record.status || '--';
+
+
+                            row.innerHTML = `
+                                <span>
+                                    ${escapeHTML(formattedDate)}
+                                    (${escapeHTML(checkIn)}
+                                    to
+                                    ${escapeHTML(checkOut)})
+                                </span>
+
+                                <strong class="text-primary">
+                                    ${escapeHTML(status)}
+                                </strong>
+                            `;
+
+
+                            attendanceList.appendChild(row);
+
+                        }
+                    );
+
+                }
+
+
+                /* -------------------------------------------------
+                   Latest Payslip
+                ------------------------------------------------- */
+
+                const {
+                    data: latestPayslip,
+                    error: payslipError
+                } = await supabase
+                    .from('payslips')
+                    .select(`
+                        *,
+                        payroll_record:payroll_records(*),
+                        payroll_period:payroll_periods(period_name)
+                    `)
+                    .eq('employee_id', myEmpRecord.id)
+                    .order('created_at', {
+                        ascending: false
+                    })
+                    .limit(1)
+                    .maybeSingle();
+
+
+                if (payslipError) {
+
+                    console.error(
+                        'EAMA Payroll: Failed to load payslip:',
+                        payslipError
+                    );
+
+                }
+
+
+                const payslipContainer =
+                    document.getElementById(
+                        'portal-payslip-content'
+                    );
+
+
+                if (!latestPayslip) {
+
+                    payslipContainer.innerHTML = `
+                        <p class="text-on-surface-variant">
+                            No payslips available yet.
+                        </p>
+                    `;
+
+                } else {
+
+                    const record =
+                        latestPayslip.payroll_record || {};
+
+                    const period =
+                        latestPayslip.payroll_period || {};
+
+
+                    payslipContainer.innerHTML = `
+                        <div class="p-3 bg-surface-container-low rounded-lg space-y-1">
+
+                            <div class="flex justify-between gap-3">
+                                <span>Period:</span>
+                                <strong>
+                                    ${escapeHTML(period.period_name || '--')}
+                                </strong>
+                            </div>
+
+                            <div class="flex justify-between gap-3">
+                                <span>Gross Earnings:</span>
+                                <span>
+                                    ${formatCurrency(record.gross_salary || 0)}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between gap-3 text-error">
+                                <span>Deductions:</span>
+                                <span>
+                                    -${formatCurrency(record.total_deductions || 0)}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between gap-3 font-bold text-primary pt-1 border-t border-outline-variant/30">
+                                <span>Net Take-Home:</span>
+                                <span>
+                                    ${formatCurrency(record.net_salary || 0)}
+                                </span>
+                            </div>
+
+                        </div>
+                    `;
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    'EAMA Payroll: Employee portal initialization failed:',
+                    error
+                );
+
+                if (typeof showToast === 'function') {
+
+                    showToast(
+                        error.message ||
+                        'Failed to load employee portal.',
+                        'error'
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        /* =========================================================
+           LEAVE REQUEST
+        ========================================================== */
+
+        document
+            .getElementById('emp-leave-form')
+            .addEventListener(
+                'submit',
+                async event => {
+
+                    event.preventDefault();
+
+
+                    if (!myEmpRecord) {
+
+                        showToast(
+                            'Employee profile is not available.',
+                            'error'
+                        );
+
+                        return;
+
+                    }
+
+
+                    const form =
+                        event.target;
+
+                    const button =
+                        document.getElementById(
+                            'btn-submit-leave'
+                        );
+
+
+                    button.disabled = true;
+                    button.textContent = 'Submitting...';
+
+
+                    try {
+
+                        const totalDays =
+                            parseFloat(
+                                form.totalDays.value
+                            );
+
+
+                        if (
+                            !Number.isFinite(totalDays) ||
+                            totalDays <= 0
+                        ) {
+
+                            throw new Error(
+                                'Please enter a valid number of leave days.'
+                            );
+
+                        }
+
+
+                        const startDate =
+                            form.startDate.value;
+
+                        const endDate =
+                            form.endDate.value;
+
+
+                        if (
+                            startDate &&
+                            endDate &&
+                            endDate < startDate
+                        ) {
+
+                            throw new Error(
+                                'End date cannot be before the start date.'
+                            );
+
+                        }
+
+
+                        const leaveTypeId =
+                            form.leaveTypeId.value;
+
+
+                        if (!leaveTypeId) {
+
+                            throw new Error(
+                                'Please select a leave type.'
+                            );
+
+                        }
+
+
+                        const {
+                            error
+                        } = await supabase
+                            .from('leave_requests')
+                            .insert([
+                                {
+                                    employee_id:
+                                        myEmpRecord.id,
+
+                                    leave_type_id:
+                                        leaveTypeId,
+
+                                    start_date:
+                                        startDate,
+
+                                    end_date:
+                                        endDate,
+
+                                    total_days:
+                                        totalDays,
+
+                                    reason:
+                                        form.reason.value.trim() ||
+                                        null,
+
+                                    status:
+                                        'Pending'
+                                }
+                            ]);
+
+
+                        if (error) {
+                            throw error;
+                        }
+
+
+                        showToast(
+                            'Leave request submitted!',
+                            'success'
+                        );
+
+
+                        closeLeaveModal();
+
+                        form.reset();
+
+                        await initPortal();
+
+                    } catch (error) {
+
+                        console.error(
+                            'EAMA Payroll: Leave submission failed:',
+                            error
+                        );
+
+                        showToast(
+                            error.message ||
+                            'Error submitting leave request.',
+                            'error'
+                        );
+
+                    } finally {
+
+                        button.disabled = false;
+                        button.textContent =
+                            'Submit Request';
+
+                    }
+
+                }
+            );
+
+
+        /* =========================================================
+           OVERTIME REQUEST
+        ========================================================== */
+
+        document
+            .getElementById('emp-ot-form')
+            .addEventListener(
+                'submit',
+                async event => {
+
+                    event.preventDefault();
+
+
+                    if (!myEmpRecord) {
+
+                        showToast(
+                            'Employee profile is not available.',
+                            'error'
+                        );
+
+                        return;
+
+                    }
+
+
+                    const form =
+                        event.target;
+
+                    const button =
+                        document.getElementById(
+                            'btn-submit-ot'
+                        );
+
+
+                    button.disabled = true;
+                    button.textContent = 'Submitting...';
+
+
+                    let uploadedPath = null;
+
+
+                    try {
+
+                        const hours =
+                            parseFloat(
+                                form.otHours.value
+                            );
+
+
+                        if (
+                            !Number.isFinite(hours) ||
+                            hours <= 0
+                        ) {
+
+                            throw new Error(
+                                'Please enter valid overtime hours.'
+                            );
+
+                        }
+
+
+                        const file =
+                            form.otFile.files[0];
+
+
+                        /* -------------------------------------------------
+                           Upload attachment
+                        ------------------------------------------------- */
+
+                        if (file) {
+
+                            const allowedTypes = [
+                                'application/pdf',
+                                'image/jpeg',
+                                'image/png',
+                                'image/webp'
+                            ];
+
+
+                            const maxFileSize =
+                                10 * 1024 * 1024;
+
+
+                            if (
+                                !allowedTypes.includes(
+                                    file.type
+                                )
+                            ) {
+
+                                throw new Error(
+                                    'Only PDF, JPG, PNG, or WEBP files are allowed.'
+                                );
+
+                            }
+
+
+                            if (
+                                file.size > maxFileSize
+                            ) {
+
+                                throw new Error(
+                                    'The timesheet file must be 10 MB or smaller.'
+                                );
+
+                            }
+
+
+                            const safeFileName =
+                                file.name
+                                    .replace(
+                                        /[^a-zA-Z0-9._-]/g,
+                                        '_'
+                                    );
+
+
+                            const filePath =
+                                `${myEmpRecord.id}/${Date.now()}_${safeFileName}`;
+
+
+                            const {
+                                error: uploadError
+                            } = await supabase.storage
+                                .from(
+                                    'overtime-attachments'
+                                )
+                                .upload(
+                                    filePath,
+                                    file,
+                                    {
+                                        upsert: false,
+                                        contentType:
+                                            file.type
+                                    }
+                                );
+
+
+                            if (uploadError) {
+                                throw uploadError;
+                            }
+
+
+                            uploadedPath =
+                                filePath;
+
+                        }
+
+
+                        /* -------------------------------------------------
+                           Overtime multiplier
+                        ------------------------------------------------- */
+
+                        const multipliers = {
+                            Normal: 1.5,
+                            Weekend: 2.0,
+                            Holiday: 2.5
+                        };
+
+
+                        const overtimeType =
+                            form.otType.value;
+
+
+                        const multiplier =
+                            multipliers[overtimeType] ||
+                            1.5;
+
+
+                        /* -------------------------------------------------
+                           Create overtime request
+                        ------------------------------------------------- */
+
+                        const {
+                            error
+                        } = await supabase
+                            .from('overtime_requests')
+                            .insert([
+                                {
+                                    employee_id:
+                                        myEmpRecord.id,
+
+                                    date:
+                                        form.otDate.value,
+
+                                    hours:
+                                        hours,
+
+                                    overtime_type:
+                                        overtimeType,
+
+                                    rate_multiplier:
+                                        multiplier,
+
+                                    reason:
+                                        form.otReason.value.trim() ||
+                                        null,
+
+                                    attachment_url:
+                                        uploadedPath,
+
+                                    status:
+                                        'Pending'
+                                }
+                            ]);
+
+
+                        if (error) {
+
+                            /*
+                             * If database insertion fails after
+                             * uploading the attachment, remove the
+                             * uploaded file to avoid orphaned files.
+                             */
+                            if (uploadedPath) {
+
+                                await supabase.storage
+                                    .from(
+                                        'overtime-attachments'
+                                    )
+                                    .remove([
+                                        uploadedPath
+                                    ]);
+
+                            }
+
+                            throw error;
+
+                        }
+
+
+                        showToast(
+                            'Overtime claim submitted for supervisor approval!',
+                            'success'
+                        );
+
+
+                        closeOtModal();
+
+                        form.reset();
+
+                    } catch (error) {
+
+                        console.error(
+                            'EAMA Payroll: Overtime submission failed:',
+                            error
+                        );
+
+                        showToast(
+                            error.message ||
+                            'Error submitting overtime claim.',
+                            'error'
+                        );
+
+                    } finally {
+
+                        button.disabled = false;
+                        button.textContent =
+                            'Submit Claim';
+
+                    }
+
+                }
+            );
+
+
+        /* =========================================================
+           KEYBOARD / MODAL ESCAPE
+        ========================================================== */
+
+        document.addEventListener(
+            'keydown',
+            event => {
+
+                if (event.key !== 'Escape') {
+                    return;
+                }
+
+                closeLeaveModal();
+                closeOtModal();
+
+            }
+        );
+
+
+        /* =========================================================
+           INITIALIZE
+        ========================================================== */
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            async () => {
+
+                try {
+
+                    const user =
+                        await requireAuth([
+                            'employee',
+                            'admin',
+                            'hr_manager',
+                            'department_manager'
+                        ]);
+
+
+                    if (user) {
+
+                        await initPortal();
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        'EAMA Payroll: Authentication failed:',
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

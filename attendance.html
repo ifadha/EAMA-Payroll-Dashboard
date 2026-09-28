@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Attendance - EAMA Payroll</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex overflow-hidden">
+    <!-- SideNav -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">E</div>
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">EAMA Payroll</h1>
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Management System</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="dashboard.html">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="employees.html">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                Employees
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm" href="attendance.html">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+                Attendance
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="leave-management.html">
+                <span class="material-symbols-outlined text-[20px]">event_busy</span>
+                Leave
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="overtime.html">
+                <span class="material-symbols-outlined text-[20px]">more_time</span>
+                Overtime
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="payroll.html">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                Payroll
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="payslip.html">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                Payslips
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="reports.html">
+                <span class="material-symbols-outlined text-[20px]">assessment</span>
+                Reports
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="settings.html">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm" href="audit-log.html">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Audit Log
+            </a>
+        </nav>
+
+        <div class="p-3 border-t border-outline-variant/30">
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors" href="javascript:void(0)" data-action="logout">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+            <h2 class="text-lg font-bold text-on-surface">Daily Attendance Management</h2>
+
+            <button onclick="openMarkAttendanceModal()" class="bg-primary hover:bg-primary-container text-on-primary px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-lg">add_circle</span>
+                <span>Mark Attendance</span>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+            <div class="max-w-[1440px] mx-auto space-y-4">
+
+                <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase">Date:</label>
+
+                        <input
+                            id="attendance-date"
+                            type="date"
+                            class="px-3 py-1.5 bg-surface rounded-lg border border-outline-variant text-sm font-medium"
+                        />
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <input
+                            id="search-emp"
+                            placeholder="Filter employee..."
+                            class="px-3 py-1.5 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-surface-container-low text-on-surface-variant uppercase text-xs font-semibold border-b border-outline-variant/30">
+                                <tr>
+                                    <th class="py-3 px-4">Employee</th>
+                                    <th class="py-3 px-4">Department</th>
+                                    <th class="py-3 px-4">Check In</th>
+                                    <th class="py-3 px-4">Check Out</th>
+                                    <th class="py-3 px-4">Total Hours</th>
+                                    <th class="py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="attendance-tbody" class="divide-y divide-outline-variant/20 text-on-surface">
+                                <tr>
+                                    <td colspan="6" class="py-6 text-center text-on-surface-variant">
+                                        Loading attendance...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Drawer: Mark Attendance -->
+    <div id="markAttendanceModal" class="fixed inset-0 z-50 hidden">
+
+        <div
+            class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onclick="closeMarkAttendanceModal()"
+        ></div>
+
+        <div class="absolute right-0 top-0 bottom-0 w-full md:w-[480px] bg-surface-container-lowest shadow-2xl flex flex-col h-full z-10">
+
+            <div class="p-5 border-b border-outline-variant/30 flex justify-between items-center">
+                <h3 class="text-base font-bold text-on-surface">
+                    Record Daily Attendance
+                </h3>
+
+                <button
+                    onclick="closeMarkAttendanceModal()"
+                    class="p-1 text-on-surface-variant hover:bg-surface-container rounded-full"
+                >
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <form id="mark-attendance-form" class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Employee *
+                    </label>
+
+                    <select
+                        name="employeeId"
+                        id="modal-emp-select"
+                        required
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    ></select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Date *
+                    </label>
+
+                    <input
+                        name="attDate"
+                        id="modal-att-date"
+                        required
+                        type="date"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Check In Time
+                        </label>
+
+                        <input
+                            name="checkIn"
+                            type="time"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Check Out Time
+                        </label>
+
+                        <input
+                            name="checkOut"
+                            type="time"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Status *
+                    </label>
+
+                    <select
+                        name="status"
+                        required
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm font-semibold"
+                    >
+                        <option value="Present">Present</option>
+                        <option value="Late">Late</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Half Day">Half Day</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-on-surface-variant mb-1">
+                        Notes / Remarks
+                    </label>
+
+                    <textarea
+                        name="notes"
+                        rows="2"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                    ></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-outline-variant/30 flex justify-end gap-2">
+
+                    <button
+                        type="button"
+                        onclick="closeMarkAttendanceModal()"
+                        class="px-4 py-2 border border-outline-variant rounded-lg"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="save-att-btn"
+                        class="px-5 py-2 bg-primary text-on-primary rounded-lg font-semibold"
+                    >
+                        Save Record
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+
+    <script>
+        let attendanceRecords = [];
+
+        function openMarkAttendanceModal() {
+            document.getElementById('modal-att-date').value =
+                document.getElementById('attendance-date').value;
+
+            document.getElementById('markAttendanceModal').classList.remove('hidden');
+        }
+
+        function closeMarkAttendanceModal() {
+            document.getElementById('markAttendanceModal').classList.add('hidden');
+        }
+
+        async function loadEmployeesDropdown() {
+            const { data: emps, error } = await supabase
+                .from('employees')
+                .select('id, full_name, employee_number')
+                .eq('status', 'Active')
+                .order('full_name');
+
+            if (error) {
+                console.error('Failed to load employees:', error);
+                showToast('Failed to load employees: ' + error.message, 'error');
+                return;
+            }
+
+            const select = document.getElementById('modal-emp-select');
+
+            select.innerHTML = '<option value="">Select Employee...</option>';
+
+            (emps || []).forEach(e => {
+                select.innerHTML += `
+                    <option value="${e.id}">
+                        ${e.full_name} (${e.employee_number})
+                    </option>
+                `;
+            });
+        }
+
+        async function fetchAttendance() {
+            const d = document.getElementById('attendance-date').value;
+
+            if (!d) return;
+
+            const { data, error } = await supabase
+                .from('attendance')
+                .select(`
+                    *,
+                    employee:employees(
+                        full_name,
+                        employee_number,
+                        department:departments(name)
+                    )
+                `)
+                .eq('date', d);
+
+            if (error) {
+                console.error('Attendance loading error:', error);
+                showToast('Failed to load attendance: ' + error.message, 'error');
+                return;
+            }
+
+            attendanceRecords = data || [];
+            renderAttendance();
+        }
+
+        function renderAttendance() {
+            const query = document
+                .getElementById('search-emp')
+                .value
+                .toLowerCase()
+                .trim();
+
+            const filtered = attendanceRecords.filter(a =>
+                (
+                    a.employee?.full_name &&
+                    a.employee.full_name.toLowerCase().includes(query)
+                ) ||
+                (
+                    a.employee?.employee_number &&
+                    a.employee.employee_number.toLowerCase().includes(query)
+                )
+            );
+
+            const tbody = document.getElementById('attendance-tbody');
+
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-6 text-center text-on-surface-variant">
+                            No attendance records logged for this date.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(a => {
+
+                let statusClass = 'bg-surface-container text-primary border-outline-variant/30';
+
+                if (a.status === 'Present') {
+                    statusClass = 'bg-[#E6F4EA] text-[#137333] border-[#A8D5B5]';
+                } else if (a.status === 'Late') {
+                    statusClass = 'bg-[#FEF7E0] text-[#B06000] border-[#F5D58A]';
+                } else if (a.status === 'Absent') {
+                    statusClass = 'bg-red-50 text-error border-red-200';
+                } else if (a.status === 'On Leave') {
+                    statusClass = 'bg-[#E8E6FF] text-primary border-[#CAC4D3]';
+                } else if (a.status === 'Half Day') {
+                    statusClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+
+                        <td class="py-3 px-4 font-medium">
+                            ${a.employee?.full_name || 'N/A'}
+                            <span class="text-xs text-on-surface-variant">
+                                (${a.employee?.employee_number || ''})
+                            </span>
+                        </td>
+
+                        <td class="py-3 px-4 text-xs">
+                            ${a.employee?.department?.name || 'N/A'}
+                        </td>
+
+                        <td class="py-3 px-4 text-xs font-mono">
+                            ${a.check_in || '--:--'}
+                        </td>
+
+                        <td class="py-3 px-4 text-xs font-mono">
+                            ${a.check_out || '--:--'}
+                        </td>
+
+                        <td class="py-3 px-4 font-bold text-xs">
+                            ${a.total_hours || 0} hrs
+                        </td>
+
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
+                                ${a.status}
+                            </span>
+                        </td>
+
+                    </tr>
+                `;
+            });
+        }
+
+        document
+            .getElementById('attendance-date')
+            .addEventListener('change', fetchAttendance);
+
+        document
+            .getElementById('search-emp')
+            .addEventListener('input', renderAttendance);
+
+        document
+            .getElementById('mark-attendance-form')
+            .addEventListener('submit', async (e) => {
+
+                e.preventDefault();
+
+                const form = e.target;
+                const btn = document.getElementById('save-att-btn');
+
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                let totalHrs = 0;
+
+                if (form.checkIn.value && form.checkOut.value) {
+
+                    const [h1, m1] = form.checkIn.value
+                        .split(':')
+                        .map(Number);
+
+                    const [h2, m2] = form.checkOut.value
+                        .split(':')
+                        .map(Number);
+
+                    let startMinutes = h1 * 60 + m1;
+                    let endMinutes = h2 * 60 + m2;
+
+                    // Support overnight shifts.
+                    if (endMinutes < startMinutes) {
+                        endMinutes += 24 * 60;
+                    }
+
+                    totalHrs = Math.max(
+                        0,
+                        (endMinutes - startMinutes) / 60
+                    );
+                }
+
+                try {
+
+                    const { error } = await supabase
+                        .from('attendance')
+                        .upsert(
+                            {
+                                employee_id: form.employeeId.value,
+                                date: form.attDate.value,
+                                check_in: form.checkIn.value || null,
+                                check_out: form.checkOut.value || null,
+                                status: form.status.value,
+                                total_hours: parseFloat(totalHrs.toFixed(2)),
+                                notes: form.notes.value.trim() || null
+                            },
+                            {
+                                onConflict: 'employee_id,date'
+                            }
+                        );
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    showToast('Attendance recorded successfully!', 'success');
+
+                    closeMarkAttendanceModal();
+
+                    form.reset();
+
+                    document.getElementById('modal-att-date').value =
+                        document.getElementById('attendance-date').value;
+
+                    await fetchAttendance();
+
+                } catch (err) {
+
+                    console.error('Attendance save error:', err);
+
+                    showToast(
+                        err.message || 'Error recording attendance',
+                        'error'
+                    );
+
+                } finally {
+
+                    btn.disabled = false;
+                    btn.textContent = 'Save Record';
+                }
+            });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            const user = await requireAuth([
+                'admin',
+                'hr_manager',
+                'department_manager'
+            ]);
+
+            if (!user) return;
+
+            const today = new Date();
+
+            const localDate =
+                today.getFullYear() +
+                '-' +
+                String(today.getMonth() + 1).padStart(2, '0') +
+                '-' +
+                String(today.getDate()).padStart(2, '0');
+
+            document.getElementById('attendance-date').value = localDate;
+            document.getElementById('modal-att-date').value = localDate;
+
+            await loadEmployeesDropdown();
+            await fetchAttendance();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Settings - EAMA Payroll</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+
+    <!-- SideNav -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="dashboard.html">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="employees.html">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                Employees
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="attendance.html">
+                <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                Attendance
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="leave-management.html">
+                <span class="material-symbols-outlined text-[20px]">event_busy</span>
+                Leave
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="overtime.html">
+                <span class="material-symbols-outlined text-[20px]">more_time</span>
+                Overtime
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="payroll.html">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                Payroll
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="payslip.html">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                Payslips
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="reports.html">
+                <span class="material-symbols-outlined text-[20px]">assessment</span>
+                Reports
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+               href="settings.html">
+                <span class="material-symbols-outlined text-[20px]"
+                      style="font-variation-settings: 'FILL' 1;">
+                    settings
+                </span>
+                Settings
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="audit-log.html">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Audit Log
+            </a>
+
+        </nav>
+
+        <div class="p-3 border-t border-outline-variant/30">
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+               href="javascript:void(0)"
+               data-action="logout">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- Main Application -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+
+            <h2 class="text-lg font-bold text-on-surface">
+                Company Profile &amp; Policies
+            </h2>
+
+        </header>
+
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[720px] mx-auto bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-6 shadow-sm space-y-4">
+
+                <form id="settings-form" class="space-y-4 text-xs">
+
+                    <!-- Company Name -->
+                    <div>
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Company Legal Name *
+                        </label>
+
+                        <input
+                            name="companyName"
+                            required
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+                    </div>
+
+
+                    <!-- Registration + Email -->
+                    <div class="grid grid-cols-2 gap-3">
+
+                        <div>
+                            <label class="block font-semibold text-on-surface-variant mb-1">
+                                Registration Number *
+                            </label>
+
+                            <input
+                                name="regNo"
+                                required
+                                class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                            />
+                        </div>
+
+
+                        <div>
+                            <label class="block font-semibold text-on-surface-variant mb-1">
+                                Primary Contact Email *
+                            </label>
+
+                            <input
+                                name="email"
+                                required
+                                type="email"
+                                class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                            />
+                        </div>
+
+                    </div>
+
+
+                    <!-- Phone -->
+                    <div>
+
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Phone Number *
+                        </label>
+
+                        <input
+                            name="phone"
+                            required
+                            type="tel"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+
+                    </div>
+
+
+                    <!-- Address -->
+                    <div>
+
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Registered Address *
+                        </label>
+
+                        <textarea
+                            name="address"
+                            rows="3"
+                            required
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- Working Hours -->
+                    <div>
+
+                        <label class="block font-semibold text-on-surface-variant mb-1">
+                            Standard Monthly Working Hours
+                        </label>
+
+                        <input
+                            name="stdHours"
+                            type="number"
+                            step="1"
+                            min="1"
+                            required
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"
+                        />
+
+                    </div>
+
+
+                    <!-- Save -->
+                    <div class="pt-4 border-t border-outline-variant/30 flex justify-end">
+
+                        <button
+                            type="submit"
+                            id="save-settings-btn"
+                            class="px-6 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm shadow-sm hover:bg-primary-container disabled:opacity-50"
+                        >
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- Supabase -->
+    <script src="supabase-client.js"></script>
+
+
+    <script>
+
+        const SETTINGS_ID = 'a0000000-0000-0000-0000-000000000001';
+
+
+        /*
+         * Load company settings
+         */
+        async function loadSettings() {
+
+            try {
+
+                const { data, error } = await supabase
+                    .from('company_settings')
+                    .select('*')
+                    .eq('id', SETTINGS_ID)
+                    .single();
+
+                if (error) {
+                    console.error('Settings load error:', error);
+                    showToast(
+                        'Failed to load settings: ' + error.message,
+                        'error'
+                    );
+                    return;
+                }
+
+                if (!data) {
+                    showToast(
+                        'Company settings record was not found.',
+                        'error'
+                    );
+                    return;
+                }
+
+                const form = document.getElementById('settings-form');
+
+                form.companyName.value = data.company_name || '';
+                form.regNo.value = data.registration_number || '';
+                form.email.value = data.primary_email || '';
+                form.phone.value = data.phone_number || '';
+                form.address.value = data.registered_address || '';
+                form.stdHours.value = data.standard_monthly_hours ?? '';
+
+            } catch (err) {
+
+                console.error('Unexpected settings load error:', err);
+
+                showToast(
+                    err.message || 'Failed to load settings.',
+                    'error'
+                );
+            }
+        }
+
+
+        /*
+         * Save company settings
+         */
+        document
+            .getElementById('settings-form')
+            .addEventListener('submit', async (e) => {
+
+                e.preventDefault();
+
+                const btn = document.getElementById('save-settings-btn');
+
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                const form = e.target;
+
+                try {
+
+                    const companyName = form.companyName.value.trim();
+                    const regNo = form.regNo.value.trim();
+                    const email = form.email.value.trim();
+                    const phone = form.phone.value.trim();
+                    const address = form.address.value.trim();
+                    const stdHours = Number(form.stdHours.value);
+
+                    if (!companyName) {
+                        throw new Error('Company legal name is required.');
+                    }
+
+                    if (!regNo) {
+                        throw new Error('Registration number is required.');
+                    }
+
+                    if (!email) {
+                        throw new Error('Primary contact email is required.');
+                    }
+
+                    if (!phone) {
+                        throw new Error('Phone number is required.');
+                    }
+
+                    if (!address) {
+                        throw new Error('Registered address is required.');
+                    }
+
+                    if (!Number.isFinite(stdHours) || stdHours <= 0) {
+                        throw new Error(
+                            'Standard monthly working hours must be greater than 0.'
+                        );
+                    }
+
+
+                    const { error } = await supabase
+                        .from('company_settings')
+                        .update({
+                            company_name: companyName,
+                            registration_number: regNo,
+                            primary_email: email,
+                            phone_number: phone,
+                            registered_address: address,
+                            standard_monthly_hours: stdHours
+                        })
+                        .eq('id', SETTINGS_ID);
+
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    showToast(
+                        'Company settings updated successfully!',
+                        'success'
+                    );
+
+                } catch (err) {
+
+                    console.error('Settings update error:', err);
+
+                    showToast(
+                        err.message || 'Update failed.',
+                        'error'
+                    );
+
+                } finally {
+
+                    btn.disabled = false;
+                    btn.textContent = 'Save Changes';
+
+                }
+
+            });
+
+
+        /*
+         * Initialize page
+         */
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            try {
+
+                const user = await requireAuth(['admin']);
+
+                if (user) {
+                    await loadSettings();
+                }
+
+            } catch (err) {
+
+                console.error('Settings initialization error:', err);
+
+                showToast(
+                    err.message || 'Failed to initialize settings.',
+                    'error'
+                );
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

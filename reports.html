@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Reports - EAMA Payroll</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+
+    <!-- Side Navigation -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="dashboard.html">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="employees.html">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                Employees
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="attendance.html">
+                <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                Attendance
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="leave-management.html">
+                <span class="material-symbols-outlined text-[20px]">event_busy</span>
+                Leave
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="overtime.html">
+                <span class="material-symbols-outlined text-[20px]">more_time</span>
+                Overtime
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="payroll.html">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                Payroll
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="payslip.html">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                Payslips
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+               href="reports.html">
+                <span class="material-symbols-outlined text-[20px]"
+                      style="font-variation-settings: 'FILL' 1;">
+                    assessment
+                </span>
+                Reports
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="settings.html">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+               href="audit-log.html">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Audit Log
+            </a>
+
+        </nav>
+
+        <div class="p-3 border-t border-outline-variant/30">
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+               href="javascript:void(0)"
+               data-action="logout">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- Main Application -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+            <h2 class="text-lg font-bold text-on-surface">
+                Financial &amp; Workforce Reporting
+            </h2>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[1440px] mx-auto space-y-6">
+
+                <!-- Filters & Actions -->
+                <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-wrap gap-4 items-center justify-between">
+
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase">
+                            Period:
+                        </label>
+
+                        <select id="report-period"
+                                class="px-3 py-1.5 bg-surface rounded-lg border border-outline-variant text-sm font-bold text-primary">
+                        </select>
+                    </div>
+
+                    <button onclick="exportReportCSV()"
+                            class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm hover:bg-primary-container transition-colors">
+
+                        <span class="material-symbols-outlined text-[16px]">
+                            file_download
+                        </span>
+
+                        <span>
+                            Export CSV
+                        </span>
+
+                    </button>
+
+                </div>
+
+                <!-- Report Table -->
+                <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+
+                    <div class="overflow-x-auto">
+
+                        <table class="w-full text-left text-xs">
+
+                            <thead class="bg-surface-container-low text-on-surface-variant uppercase font-semibold border-b border-outline-variant/30">
+
+                                <tr>
+
+                                    <th class="py-3 px-4">
+                                        Emp No
+                                    </th>
+
+                                    <th class="py-3 px-4">
+                                        Employee Name
+                                    </th>
+
+                                    <th class="py-3 px-4">
+                                        Department
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right">
+                                        Basic (LKR)
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right">
+                                        EPF EE (8%)
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right">
+                                        EPF ER (12%)
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right">
+                                        ETF ER (3%)
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right">
+                                        PAYE / APIT
+                                    </th>
+
+                                    <th class="py-3 px-4 text-right font-bold text-primary">
+                                        Net Salary (LKR)
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="report-tbody"
+                                   class="divide-y divide-outline-variant/10 text-on-surface">
+
+                                <tr>
+                                    <td colspan="9"
+                                        class="py-6 text-center text-on-surface-variant">
+                                        Loading report data...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Supabase -->
+    <script src="supabase-client.js"></script>
+
+    <script>
+
+        let reportRecords = [];
+
+        /* -----------------------------------------
+           LOAD PAYROLL PERIODS
+        ----------------------------------------- */
+
+        async function loadReportPeriods() {
+
+            try {
+
+                const { data, error } = await supabase
+                    .from('payroll_periods')
+                    .select('id, period_name')
+                    .order('start_date', {
+                        ascending: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                const sel = document.getElementById('report-period');
+
+                sel.innerHTML = '';
+
+                if (!data || data.length === 0) {
+
+                    sel.innerHTML = `
+                        <option value="">
+                            No payroll periods available
+                        </option>
+                    `;
+
+                    document.getElementById('report-tbody').innerHTML = `
+                        <tr>
+                            <td colspan="9"
+                                class="py-6 text-center text-on-surface-variant">
+                                No payroll periods available.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+                data.forEach(period => {
+
+                    const option = document.createElement('option');
+
+                    option.value = period.id;
+                    option.textContent = period.period_name;
+
+                    sel.appendChild(option);
+
+                });
+
+                await fetchReportData();
+
+            } catch (error) {
+
+                console.error('Failed to load payroll periods:', error);
+
+                showToast(
+                    error.message || 'Failed to load payroll periods.',
+                    'error'
+                );
+
+            }
+
+        }
+
+
+        /* -----------------------------------------
+           FETCH REPORT DATA
+        ----------------------------------------- */
+
+        async function fetchReportData() {
+
+            const periodId =
+                document.getElementById('report-period').value;
+
+            const tbody =
+                document.getElementById('report-tbody');
+
+            if (!periodId) {
+
+                reportRecords = [];
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9"
+                            class="py-6 text-center text-on-surface-variant">
+                            Select a payroll period.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9"
+                        class="py-6 text-center text-on-surface-variant">
+                        Loading report data...
+                    </td>
+                </tr>
+            `;
+
+            try {
+
+                const { data, error } = await supabase
+                    .from('payroll_records')
+                    .select('*')
+                    .eq('payroll_period_id', periodId)
+                    .order('employee_number');
+
+                if (error) {
+                    throw error;
+                }
+
+                reportRecords = data || [];
+
+                tbody.innerHTML = '';
+
+                if (reportRecords.length === 0) {
+
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9"
+                                class="py-6 text-center text-on-surface-variant">
+                                No payroll records found for this period.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+                reportRecords.forEach(record => {
+
+                    const row = document.createElement('tr');
+
+                    row.className =
+                        'hover:bg-surface-container-low transition-colors';
+
+                    row.innerHTML = `
+
+                        <td class="py-2.5 px-4 font-mono font-medium">
+                            ${escapeHTML(record.employee_number)}
+                        </td>
+
+                        <td class="py-2.5 px-4 font-bold">
+                            ${escapeHTML(record.employee_name)}
+                        </td>
+
+                        <td class="py-2.5 px-4">
+                            ${escapeHTML(record.department_name)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right">
+                            ${formatCurrency(record.basic_salary)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right">
+                            ${formatCurrency(record.epf_employee_amount)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right">
+                            ${formatCurrency(record.epf_employer_amount)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right">
+                            ${formatCurrency(record.etf_employer_amount)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right text-error">
+                            ${formatCurrency(record.paye_tax)}
+                        </td>
+
+                        <td class="py-2.5 px-4 text-right font-bold text-primary">
+                            ${formatCurrency(record.net_salary)}
+                        </td>
+
+                    `;
+
+                    tbody.appendChild(row);
+
+                });
+
+            } catch (error) {
+
+                console.error('Failed to load report data:', error);
+
+                reportRecords = [];
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9"
+                            class="py-6 text-center text-error">
+                            Failed to load report data.
+                        </td>
+                    </tr>
+                `;
+
+                showToast(
+                    error.message || 'Failed to load report data.',
+                    'error'
+                );
+
+            }
+
+        }
+
+
+        /* -----------------------------------------
+           CSV EXPORT
+        ----------------------------------------- */
+
+        function csvEscape(value) {
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            const stringValue = String(value);
+
+            return `"${stringValue.replace(/"/g, '""')}"`;
+
+        }
+
+
+        function exportReportCSV() {
+
+            if (!reportRecords || reportRecords.length === 0) {
+
+                showToast(
+                    'There is no report data to export.',
+                    'error'
+                );
+
+                return;
+            }
+
+            const periodSelect =
+                document.getElementById('report-period');
+
+            const selectedOption =
+                periodSelect.selectedOptions[0];
+
+            const periodName =
+                selectedOption
+                    ? selectedOption.textContent
+                    : 'Payroll_Period';
+
+            const headers = [
+                'Employee No',
+                'Name',
+                'Department',
+                'Basic Salary',
+                'EPF 8%',
+                'EPF 12%',
+                'ETF 3%',
+                'PAYE / APIT',
+                'Net Salary'
+            ];
+
+            const rows = reportRecords.map(record => [
+
+                csvEscape(record.employee_number),
+
+                csvEscape(record.employee_name),
+
+                csvEscape(record.department_name),
+
+                record.basic_salary ?? 0,
+
+                record.epf_employee_amount ?? 0,
+
+                record.epf_employer_amount ?? 0,
+
+                record.etf_employer_amount ?? 0,
+
+                record.paye_tax ?? 0,
+
+                record.net_salary ?? 0
+
+            ]);
+
+            const csvContent = [
+                headers.map(csvEscape).join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\r\n');
+
+            const blob = new Blob(
+                [csvContent],
+                {
+                    type: 'text/csv;charset=utf-8;'
+                }
+            );
+
+            const url =
+                URL.createObjectURL(blob);
+
+            const link =
+                document.createElement('a');
+
+            link.href = url;
+
+            link.download =
+                `Payroll_Report_${sanitizeFilename(periodName)}.csv`;
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+            URL.revokeObjectURL(url);
+
+            showToast(
+                'Payroll report exported successfully.',
+                'success'
+            );
+
+        }
+
+
+        /* -----------------------------------------
+           HTML SAFETY
+        ----------------------------------------- */
+
+        function escapeHTML(value) {
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
+
+
+        /* -----------------------------------------
+           SAFE FILE NAME
+        ----------------------------------------- */
+
+        function sanitizeFilename(value) {
+
+            return String(value || 'Payroll_Period')
+                .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+                .replace(/\s+/g, '_')
+                .substring(0, 100);
+
+        }
+
+
+        /* -----------------------------------------
+           PERIOD CHANGE
+        ----------------------------------------- */
+
+        document
+            .getElementById('report-period')
+            .addEventListener(
+                'change',
+                fetchReportData
+            );
+
+
+        /* -----------------------------------------
+           AUTHENTICATION
+        ----------------------------------------- */
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            async () => {
+
+                try {
+
+                    const user =
+                        await requireAuth([
+                            'admin',
+                            'hr_manager'
+                        ]);
+
+                    if (user) {
+                        await loadReportPeriods();
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        'Reports authentication error:',
+                        error
+                    );
+
+                    showToast(
+                        error.message ||
+                        'Unable to authenticate user.',
+                        'error'
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

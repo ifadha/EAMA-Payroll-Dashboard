@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Payroll Processing - EAMA Payroll</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "surface-container-high": "#e8e6ff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        html,
+        body {
+            font-family: "Inter", sans-serif;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================== -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="dashboard.html">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="employees.html">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                Employees
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="attendance.html">
+                <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                Attendance
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="leave-management.html">
+                <span class="material-symbols-outlined text-[20px]">event_busy</span>
+                Leave
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="overtime.html">
+                <span class="material-symbols-outlined text-[20px]">more_time</span>
+                Overtime
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+                href="payroll.html">
+                <span
+                    class="material-symbols-outlined text-[20px]"
+                    style="font-variation-settings: 'FILL' 1;">
+                    payments
+                </span>
+                Payroll
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="payslip.html">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                Payslips
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="reports.html">
+                <span class="material-symbols-outlined text-[20px]">assessment</span>
+                Reports
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="settings.html">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="audit-log.html">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Audit Log
+            </a>
+
+        </nav>
+
+        <div class="p-3 border-t border-outline-variant/30">
+            <a
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+                href="javascript:void(0)"
+                data-action="logout">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================================
+         MAIN CONTENT
+    ========================================================== -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+
+            <h2 class="text-lg font-bold text-on-surface">
+                Payroll Engine &amp; Disbursal
+            </h2>
+
+            <div class="flex items-center gap-3">
+
+                <button
+                    onclick="openNewPeriodModal()"
+                    class="px-3 py-1.5 border border-primary text-primary hover:bg-surface-container rounded-lg text-xs font-bold transition-colors">
+                    + New Period
+                </button>
+
+            </div>
+        </header>
+
+
+        <!-- Main -->
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[1440px] mx-auto space-y-5">
+
+                <!-- =================================================
+                     PAY PERIOD + WORKFLOW
+                ================================================== -->
+                <div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/30 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+
+                    <div class="flex items-center gap-3">
+
+                        <label
+                            for="period-select"
+                            class="text-xs font-bold text-on-surface-variant uppercase">
+                            Select Pay Period:
+                        </label>
+
+                        <select
+                            id="period-select"
+                            class="px-3 py-1.5 bg-surface rounded-lg border border-outline-variant text-sm font-bold text-primary">
+                            <option value="">
+                                Loading periods...
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <!-- Workflow Buttons -->
+                    <div
+                        class="flex flex-wrap gap-2"
+                        id="workflow-actions">
+
+                        <button
+                            id="btn-generate"
+                            onclick="handleGeneratePayroll()"
+                            class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold shadow-sm hover:bg-primary-container disabled:opacity-50 transition-colors">
+                            1. Generate Payroll
+                        </button>
+
+                        <button
+                            id="btn-approve"
+                            onclick="handleApprovePayroll()"
+                            class="px-4 py-2 bg-[#137333] text-white rounded-lg text-xs font-bold shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+                            disabled>
+                            2. Approve Roster
+                        </button>
+
+                        <button
+                            id="btn-payslips"
+                            onclick="handleGeneratePayslips()"
+                            class="px-4 py-2 bg-surface-container text-primary border border-primary rounded-lg text-xs font-bold hover:bg-primary hover:text-white disabled:opacity-50 transition-colors"
+                            disabled>
+                            3. Issue Payslips
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     FINANCIAL TOTALS
+                ================================================== -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                    <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Gross Salary Total
+                        </span>
+
+                        <h3
+                            class="text-lg font-bold text-on-surface mt-1"
+                            id="sum-gross">
+                            LKR 0.00
+                        </h3>
+                    </div>
+
+
+                    <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Employee Deductions
+                        </span>
+
+                        <h3
+                            class="text-lg font-bold text-error mt-1"
+                            id="sum-deductions">
+                            LKR 0.00
+                        </h3>
+                    </div>
+
+
+                    <div class="bg-primary text-on-primary p-4 rounded-xl shadow-sm">
+
+                        <span class="text-xs text-white/80 font-medium">
+                            Net Disbursal Amount
+                        </span>
+
+                        <h3
+                            class="text-xl font-bold text-white mt-1"
+                            id="sum-net">
+                            LKR 0.00
+                        </h3>
+
+                    </div>
+
+
+                    <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Employer Cost (EPF/ETF)
+                        </span>
+
+                        <h3
+                            class="text-lg font-bold text-primary mt-1"
+                            id="sum-er-cost">
+                            LKR 0.00
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ROSTER + CALCULATION DETAIL
+                ================================================== -->
+                <div class="flex flex-col lg:flex-row gap-5">
+
+                    <!-- Roster -->
+                    <div class="flex-1 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
+
+                        <div class="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-low">
+
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface">
+                                Calculated Employee Roster
+                            </h3>
+
+                        </div>
+
+
+                        <div class="overflow-x-auto flex-1">
+
+                            <table class="w-full text-left text-xs">
+
+                                <thead class="bg-surface-container-lowest text-on-surface-variant uppercase font-semibold border-b border-outline-variant/30">
+
+                                    <tr>
+
+                                        <th class="py-2.5 px-3">
+                                            Employee
+                                        </th>
+
+                                        <th class="py-2.5 px-3 text-right">
+                                            Basic
+                                        </th>
+
+                                        <th class="py-2.5 px-3 text-right">
+                                            OT Pay
+                                        </th>
+
+                                        <th class="py-2.5 px-3 text-right">
+                                            Gross
+                                        </th>
+
+                                        <th class="py-2.5 px-3 text-right">
+                                            Deductions
+                                        </th>
+
+                                        <th class="py-2.5 px-3 text-right">
+                                            Net Salary
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody
+                                    id="payroll-roster-tbody"
+                                    class="divide-y divide-outline-variant/10 text-on-surface">
+
+                                    <tr>
+                                        <td
+                                            colspan="6"
+                                            class="py-6 text-center text-on-surface-variant">
+                                            Select or generate a payroll period.
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Calculation Drawer -->
+                    <div
+                        class="w-full lg:w-[380px] bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm p-5 space-y-4 shrink-0"
+                        id="calculation-drawer">
+
+                        <h3
+                            class="text-xs font-bold uppercase tracking-wider text-on-surface border-b border-outline-variant/30 pb-2">
+                            Itemized Salary Components
+                        </h3>
+
+                        <div
+                            id="drawer-content"
+                            class="text-xs space-y-3">
+
+                            <p class="text-on-surface-variant">
+                                Click any employee row to inspect calculations.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================================================
+         NEW PAYROLL PERIOD MODAL
+    ========================================================== -->
+    <div
+        id="newPeriodModal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+
+        <div
+            class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onclick="closeNewPeriodModal()">
+        </div>
+
+
+        <div
+            class="relative bg-surface-container-lowest rounded-xl max-w-sm w-full p-6 shadow-2xl border border-outline-variant/30 z-10 space-y-4">
+
+            <h3 class="text-base font-bold text-on-surface">
+                Create Payroll Period
+            </h3>
+
+
+            <form
+                id="new-period-form"
+                class="space-y-3 text-xs">
+
+                <div>
+
+                    <label
+                        class="block font-semibold text-on-surface-variant mb-1"
+                        for="period-name">
+                        Period Name *
+                    </label>
+
+                    <input
+                        id="period-name"
+                        name="periodName"
+                        required
+                        placeholder="August 2026"
+                        class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"/>
+
+                </div>
+
+
+                <div class="grid grid-cols-2 gap-2">
+
+                    <div>
+
+                        <label
+                            class="block font-semibold text-on-surface-variant mb-1"
+                            for="start-date">
+                            Start Date *
+                        </label>
+
+                        <input
+                            id="start-date"
+                            name="startDate"
+                            required
+                            type="date"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"/>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            class="block font-semibold text-on-surface-variant mb-1"
+                            for="end-date">
+                            End Date *
+                        </label>
+
+                        <input
+                            id="end-date"
+                            name="endDate"
+                            required
+                            type="date"
+                            class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant text-sm"/>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pt-3 border-t border-outline-variant/30 flex justify-end gap-2">
+
+                    <button
+                        type="button"
+                        onclick="closeNewPeriodModal()"
+                        class="px-4 py-2 border border-outline-variant rounded-lg">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="create-period-btn"
+                        class="px-5 py-2 bg-primary text-on-primary rounded-lg font-semibold">
+                        Create Period
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         SUPABASE CLIENT
+    ========================================================== -->
+    <script src="supabase-client.js"></script>
+
+
+    <!-- =========================================================
+         PAGE LOGIC
+    ========================================================== -->
+    <script>
+
+        let periods = [];
+        let currentRoster = [];
+        let currentUser = null;
+
+
+        /* ---------------------------------------------------------
+           SAFE HTML ESCAPE
+        --------------------------------------------------------- */
+        function escapeHtml(value) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* ---------------------------------------------------------
+           MODAL
+        --------------------------------------------------------- */
+        function openNewPeriodModal() {
+            const modal = document.getElementById("newPeriodModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+
+        function closeNewPeriodModal() {
+            const modal = document.getElementById("newPeriodModal");
+
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.add("hidden");
+        }
+
+
+        /* ---------------------------------------------------------
+           LOAD PAYROLL PERIODS
+        --------------------------------------------------------- */
+        async function loadPeriods() {
+
+            const select = document.getElementById("period-select");
+
+            select.innerHTML = `
+                <option value="">
+                    Loading periods...
+                </option>
+            `;
+
+            try {
+
+                const {
+                    data,
+                    error
+                } = await supabase
+                    .from("payroll_periods")
+                    .select("*")
+                    .order("start_date", {
+                        ascending: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                periods = data || [];
+
+                select.innerHTML = "";
+
+                if (periods.length === 0) {
+
+                    select.innerHTML = `
+                        <option value="">
+                            No periods available
+                        </option>
+                    `;
+
+                    resetPayrollDisplay();
+
+                    return;
+                }
+
+
+                periods.forEach(period => {
+
+                    const option = document.createElement("option");
+
+                    option.value = period.id;
+
+                    option.textContent =
+                        `${period.period_name} [${period.status || "Open"}]`;
+
+                    select.appendChild(option);
+
+                });
+
+
+                await loadPeriodDetails();
+
+            } catch (error) {
+
+                console.error("Failed to load payroll periods:", error);
+
+                select.innerHTML = `
+                    <option value="">
+                        Failed to load periods
+                    </option>
+                `;
+
+                showToast(
+                    "Failed to load payroll periods: " + error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* ---------------------------------------------------------
+           RESET DISPLAY
+        --------------------------------------------------------- */
+        function resetPayrollDisplay() {
+
+            document.getElementById("sum-gross").textContent =
+                "LKR 0.00";
+
+            document.getElementById("sum-deductions").textContent =
+                "LKR 0.00";
+
+            document.getElementById("sum-net").textContent =
+                "LKR 0.00";
+
+            document.getElementById("sum-er-cost").textContent =
+                "LKR 0.00";
+
+
+            document.getElementById("payroll-roster-tbody").innerHTML = `
+                <tr>
+                    <td
+                        colspan="6"
+                        class="py-6 text-center text-on-surface-variant">
+                        Select or generate a payroll period.
+                    </td>
+                </tr>
+            `;
+
+
+            document.getElementById("drawer-content").innerHTML = `
+                <p class="text-on-surface-variant">
+                    Click any employee row to inspect calculations.
+                </p>
+            `;
+
+
+            document.getElementById("btn-generate").disabled = true;
+            document.getElementById("btn-approve").disabled = true;
+            document.getElementById("btn-payslips").disabled = true;
+
+            currentRoster = [];
+
+        }
+
+
+        /* ---------------------------------------------------------
+           LOAD SELECTED PERIOD
+        --------------------------------------------------------- */
+        async function loadPeriodDetails() {
+
+            const periodId =
+                document.getElementById("period-select").value;
+
+            if (!periodId) {
+
+                resetPayrollDisplay();
+
+                return;
+            }
+
+
+            const period =
+                periods.find(p => String(p.id) === String(periodId));
+
+            if (!period) {
+                return;
+            }
+
+
+            /* Financial totals */
+
+            document.getElementById("sum-gross").textContent =
+                formatCurrency(period.total_gross || 0);
+
+            document.getElementById("sum-deductions").textContent =
+                formatCurrency(period.total_deductions || 0);
+
+            document.getElementById("sum-net").textContent =
+                formatCurrency(period.total_net || 0);
+
+            document.getElementById("sum-er-cost").textContent =
+                formatCurrency(period.total_employer_cost || 0);
+
+
+            /* Workflow buttons */
+
+            const btnGen =
+                document.getElementById("btn-generate");
+
+            const btnApp =
+                document.getElementById("btn-approve");
+
+            const btnPay =
+                document.getElementById("btn-payslips");
+
+
+            const workflowStage =
+                Number(period.workflow_stage || 1);
+
+
+            btnGen.disabled =
+                workflowStage >= 3;
+
+            btnApp.disabled =
+                workflowStage !== 2;
+
+            btnPay.disabled =
+                workflowStage < 3;
+
+
+            /* Fetch payroll records */
+
+            const {
+                data: records,
+                error
+            } = await supabase
+                .from("payroll_records")
+                .select("*, payroll_items(*)")
+                .eq("payroll_period_id", periodId)
+                .order("employee_number", {
+                    ascending: true
+                });
+
+
+            if (error) {
+
+                console.error(
+                    "Failed to load payroll records:",
+                    error
+                );
+
+                showToast(
+                    "Failed to load payroll records: " +
+                    error.message,
+                    "error"
+                );
+
+                currentRoster = [];
+
+                renderRoster();
+
+                return;
+            }
+
+
+            currentRoster = records || [];
+
+            renderRoster();
+
+        }
+
+
+        /* ---------------------------------------------------------
+           RENDER ROSTER
+        --------------------------------------------------------- */
+        function renderRoster() {
+
+            const tbody =
+                document.getElementById("payroll-roster-tbody");
+
+            tbody.innerHTML = "";
+
+
+            if (!currentRoster.length) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="py-6 text-center text-on-surface-variant">
+                            No calculated records in this period.
+                            Click "Generate Payroll".
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            currentRoster.forEach((record, index) => {
+
+                const employeeName =
+                    escapeHtml(record.employee_name || "N/A");
+
+                const employeeNumber =
+                    escapeHtml(record.employee_number || "");
+
+                const departmentName =
+                    escapeHtml(record.department_name || "N/A");
+
+
+                tbody.innerHTML += `
+                    <tr
+                        class="hover:bg-surface-container-low cursor-pointer transition-colors"
+                        onclick="selectEmployeeRoster(${index})">
+
+                        <td class="py-2.5 px-3">
+
+                            <div class="font-bold">
+                                ${employeeName}
+                            </div>
+
+                            <div class="text-[10px] text-on-surface-variant">
+                                ${employeeNumber}
+                                •
+                                ${departmentName}
+                            </div>
+
+                        </td>
+
+                        <td class="py-2.5 px-3 text-right">
+                            ${formatCurrency(record.basic_salary || 0)}
+                        </td>
+
+                        <td class="py-2.5 px-3 text-right">
+                            ${formatCurrency(record.overtime_pay || 0)}
+                        </td>
+
+                        <td class="py-2.5 px-3 text-right font-medium">
+                            ${formatCurrency(record.gross_salary || 0)}
+                        </td>
+
+                        <td class="py-2.5 px-3 text-right text-error">
+                            -${formatCurrency(record.total_deductions || 0)}
+                        </td>
+
+                        <td class="py-2.5 px-3 text-right font-bold text-primary">
+                            ${formatCurrency(record.net_salary || 0)}
+                        </td>
+
+                    </tr>
+                `;
+
+            });
+
+        }
+
+
+        /* ---------------------------------------------------------
+           SELECT EMPLOYEE
+        --------------------------------------------------------- */
+        function selectEmployeeRoster(index) {
+
+            const record =
+                currentRoster[index];
+
+            if (!record) {
+                return;
+            }
+
+
+            const items =
+                Array.isArray(record.payroll_items)
+                    ? record.payroll_items
+                    : [];
+
+
+            const earnings =
+                items.filter(item =>
+                    item.category === "earning"
+                );
+
+
+            const deductions =
+                items.filter(item =>
+                    item.category === "deduction"
+                );
+
+
+            const employerContributions =
+                items.filter(item =>
+                    item.category === "employer_contribution"
+                );
+
+
+            const drawer =
+                document.getElementById("drawer-content");
+
+
+            const earningsHtml =
+                earnings.length
+                    ? earnings.map(item => `
+                        <div class="flex justify-between gap-3">
+                            <span>
+                                ${escapeHtml(item.name || "Earning")}
+                            </span>
+
+                            <span class="font-medium whitespace-nowrap">
+                                ${formatCurrency(item.amount || 0)}
+                            </span>
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="text-on-surface-variant">
+                            No earnings recorded.
+                        </div>
+                    `;
+
+
+            const deductionsHtml =
+                deductions.length
+                    ? deductions.map(item => `
+                        <div class="flex justify-between gap-3">
+                            <span>
+                                ${escapeHtml(item.name || "Deduction")}
+                            </span>
+
+                            <span class="font-medium text-error whitespace-nowrap">
+                                -${formatCurrency(item.amount || 0)}
+                            </span>
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="text-on-surface-variant">
+                            No deductions recorded.
+                        </div>
+                    `;
+
+
+            const employerHtml =
+                employerContributions.length
+                    ? employerContributions.map(item => `
+                        <div class="flex justify-between gap-3">
+                            <span>
+                                ${escapeHtml(item.name || "Employer Contribution")}
+                            </span>
+
+                            <span class="font-medium whitespace-nowrap">
+                                ${formatCurrency(item.amount || 0)}
+                            </span>
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="text-on-surface-variant">
+                            No employer contributions recorded.
+                        </div>
+                    `;
+
+
+            drawer.innerHTML = `
+
+                <div class="font-bold text-sm text-primary">
+
+                    ${escapeHtml(record.employee_name || "N/A")}
+
+                    <span class="text-xs text-on-surface-variant">
+                        (${escapeHtml(record.employee_number || "")})
+                    </span>
+
+                </div>
+
+
+                <!-- Earnings -->
+
+                <div class="p-3 bg-surface-container-low rounded-lg space-y-1.5">
+
+                    <p class="font-bold text-xs uppercase tracking-wider text-[#137333]">
+                        Earnings
+                    </p>
+
+                    ${earningsHtml}
+
+                    <div class="flex justify-between pt-1 border-t border-outline-variant/30 font-bold">
+
+                        <span>
+                            Gross
+                        </span>
+
+                        <span>
+                            ${formatCurrency(record.gross_salary || 0)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Deductions -->
+
+                <div class="p-3 bg-surface-container-low rounded-lg space-y-1.5">
+
+                    <p class="font-bold text-xs uppercase tracking-wider text-error">
+                        Deductions
+                    </p>
+
+                    ${deductionsHtml}
+
+                    <div class="flex justify-between pt-1 border-t border-outline-variant/30 font-bold text-error">
+
+                        <span>
+                            Total Deductions
+                        </span>
+
+                        <span>
+                            -${formatCurrency(record.total_deductions || 0)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Employer Contributions -->
+
+                <div class="p-3 bg-surface-container rounded-lg space-y-1.5">
+
+                    <p class="font-bold text-xs uppercase tracking-wider text-primary">
+                        Employer Contributions
+                    </p>
+
+                    ${employerHtml}
+
+                </div>
+
+
+                <!-- Net Pay -->
+
+                <div class="p-3 bg-primary text-on-primary rounded-lg flex justify-between items-center font-bold text-sm">
+
+                    <span>
+                        Net Pay
+                    </span>
+
+                    <span>
+                        ${formatCurrency(record.net_salary || 0)}
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ---------------------------------------------------------
+           GENERATE PAYROLL
+        --------------------------------------------------------- */
+        async function handleGeneratePayroll() {
+
+            const periodId =
+                document.getElementById("period-select").value;
+
+
+            if (!periodId) {
+
+                showToast(
+                    "Please select a payroll period first.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const btn =
+                document.getElementById("btn-generate");
+
+
+            btn.disabled = true;
+
+            btn.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <span class="loading-spinner"></span>
+                    Calculating...
+                </span>
+            `;
+
+
+            try {
+
+                const {
+                    data,
+                    error
+                } = await supabase.rpc(
+                    "generate_monthly_payroll",
+                    {
+                        p_period_id: periodId
+                    }
+                );
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                const processed =
+                    data &&
+                    typeof data === "object" &&
+                    data.employees_processed !== undefined
+                        ? data.employees_processed
+                        : currentRoster.length;
+
+
+                showToast(
+                    `Payroll calculated! ${processed} employees processed.`,
+                    "success"
+                );
+
+
+                await loadPeriods();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Payroll generation error:",
+                    error
+                );
+
+                showToast(
+                    error.message || "Payroll calculation error.",
+                    "error"
+                );
+
+
+            } finally {
+
+                btn.disabled = false;
+
+                btn.textContent =
+                    "1. Generate Payroll";
+
+            }
+
+        }
+
+
+        /* ---------------------------------------------------------
+           APPROVE PAYROLL
+        --------------------------------------------------------- */
+        async function handleApprovePayroll() {
+
+            const periodId =
+                document.getElementById("period-select").value;
+
+
+            if (!periodId) {
+
+                showToast(
+                    "Please select a payroll period first.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    "Approve this payroll roster?\n\n" +
+                    "Once approved, the payroll period will be locked."
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            const btn =
+                document.getElementById("btn-approve");
+
+
+            btn.disabled = true;
+
+            btn.textContent =
+                "Approving...";
+
+
+            try {
+
+                const {
+                    error
+                } = await supabase.rpc(
+                    "approve_payroll_period",
+                    {
+                        p_period_id: periodId
+                    }
+                );
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                showToast(
+                    "Payroll period locked & approved!",
+                    "success"
+                );
+
+
+                await loadPeriods();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Payroll approval error:",
+                    error
+                );
+
+                showToast(
+                    error.message || "Payroll approval error.",
+                    "error"
+                );
+
+
+            } finally {
+
+                btn.disabled = false;
+
+                btn.textContent =
+                    "2. Approve Roster";
+
+            }
+
+        }
+
+
+        /* ---------------------------------------------------------
+           GENERATE PAYSLIPS
+        --------------------------------------------------------- */
+        async function handleGeneratePayslips() {
+
+            const periodId =
+                document.getElementById("period-select").value;
+
+
+            if (!periodId) {
+
+                showToast(
+                    "Please select a payroll period first.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    "Generate payslips for this approved payroll period?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            const btn =
+                document.getElementById("btn-payslips");
+
+
+            btn.disabled = true;
+
+            btn.textContent =
+                "Generating...";
+
+
+            try {
+
+                const {
+                    data,
+                    error
+                } = await supabase.rpc(
+                    "generate_period_payslips",
+                    {
+                        p_period_id: periodId
+                    }
+                );
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                const count =
+                    data &&
+                    typeof data === "object" &&
+                    data.payslips_created !== undefined
+                        ? data.payslips_created
+                        : 0;
+
+
+                showToast(
+                    `${count} payslips generated for distribution!`,
+                    "success"
+                );
+
+
+                await loadPeriods();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Payslip generation error:",
+                    error
+                );
+
+                showToast(
+                    error.message || "Payslip generation error.",
+                    "error"
+                );
+
+
+            } finally {
+
+                btn.disabled = false;
+
+                btn.textContent =
+                    "3. Issue Payslips";
+
+            }
+
+        }
+
+
+        /* ---------------------------------------------------------
+           CREATE NEW PERIOD
+        --------------------------------------------------------- */
+        document
+            .getElementById("new-period-form")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+
+                const form = event.target;
+
+                const button =
+                    document.getElementById("create-period-btn");
+
+
+                const periodName =
+                    form.periodName.value.trim();
+
+                const startDate =
+                    form.startDate.value;
+
+                const endDate =
+                    form.endDate.value;
+
+
+                if (!periodName || !startDate || !endDate) {
+
+                    showToast(
+                        "Please complete all required fields.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                if (startDate > endDate) {
+
+                    showToast(
+                        "Start date cannot be after end date.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Creating...";
+
+
+                try {
+
+                    const {
+                        data,
+                        error
+                    } = await supabase
+                        .from("payroll_periods")
+                        .insert([{
+                            period_name: periodName,
+                            start_date: startDate,
+                            end_date: endDate
+                        }])
+                        .select()
+                        .single();
+
+
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    showToast(
+                        "New payroll period initialized!",
+                        "success"
+                    );
+
+
+                    closeNewPeriodModal();
+
+                    form.reset();
+
+
+                    await loadPeriods();
+
+
+                    if (data && data.id) {
+
+                        document.getElementById(
+                            "period-select"
+                        ).value = data.id;
+
+                        await loadPeriodDetails();
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Period creation error:",
+                        error
+                    );
+
+                    showToast(
+                        error.message ||
+                        "Payroll period creation error.",
+                        "error"
+                    );
+
+                } finally {
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Create Period";
+
+                }
+
+            });
+
+
+        /* ---------------------------------------------------------
+           PERIOD SELECT CHANGE
+        --------------------------------------------------------- */
+        document
+            .getElementById("period-select")
+            .addEventListener(
+                "change",
+                loadPeriodDetails
+            );
+
+
+        /* ---------------------------------------------------------
+           ESC KEY CLOSES MODAL
+        --------------------------------------------------------- */
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Escape") {
+
+                    closeNewPeriodModal();
+
+                }
+
+            }
+        );
+
+
+        /* ---------------------------------------------------------
+           INITIALIZE PAGE
+        --------------------------------------------------------- */
+        document.addEventListener(
+            "DOMContentLoaded",
+            async function() {
+
+                try {
+
+                    /*
+                     * Authentication is handled by the shared
+                     * supabase-client.js file.
+                     *
+                     * Payroll processing is intentionally limited
+                     * to admin and HR managers.
+                     */
+                    const user =
+                        await requireAuth([
+                            "admin",
+                            "hr_manager"
+                        ]);
+
+
+                    if (!user) {
+                        return;
+                    }
+
+
+                    currentUser = user;
+
+
+                    await loadPeriods();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Payroll page initialization error:",
+                        error
+                    );
+
+                    showToast(
+                        error.message ||
+                        "Failed to initialize payroll page.",
+                        "error"
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

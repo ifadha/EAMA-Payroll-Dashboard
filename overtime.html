@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Overtime - EAMA Payroll</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+
+    <!-- =========================
+         SIDE NAVIGATION
+    ========================== -->
+    <aside class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex">
+
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm">
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="dashboard.html">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="employees.html">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                Employees
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="attendance.html">
+                <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                Attendance
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="leave-management.html">
+                <span class="material-symbols-outlined text-[20px]">event_busy</span>
+                Leave
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+                href="overtime.html">
+                <span
+                    class="material-symbols-outlined text-[20px]"
+                    style="font-variation-settings: 'FILL' 1;">
+                    more_time
+                </span>
+                Overtime
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="payroll.html">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                Payroll
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="payslip.html">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                Payslips
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="reports.html">
+                <span class="material-symbols-outlined text-[20px]">assessment</span>
+                Reports
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="settings.html">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container text-sm"
+                href="audit-log.html">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Audit Log
+            </a>
+
+        </nav>
+
+        <div class="p-3 border-t border-outline-variant/30">
+            <a
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+                href="javascript:void(0)"
+                data-action="logout">
+
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-surface-container-lowest w-full h-16 border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0">
+
+            <h2 class="text-lg font-bold text-on-surface">
+                Overtime Verification (Authoritative)
+            </h2>
+
+        </header>
+
+
+        <!-- Main -->
+        <main class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[1440px] mx-auto space-y-4">
+
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+
+                    <div class="overflow-x-auto">
+
+                        <table class="w-full text-left text-sm">
+
+                            <thead class="bg-surface-container-low text-on-surface-variant uppercase text-xs font-semibold border-b border-outline-variant/30">
+
+                                <tr>
+                                    <th class="py-3 px-4">Employee</th>
+                                    <th class="py-3 px-4">Date</th>
+                                    <th class="py-3 px-4">Hours</th>
+                                    <th class="py-3 px-4">Shift Type</th>
+                                    <th class="py-3 px-4">Calculated Amount</th>
+                                    <th class="py-3 px-4">Attachment</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody
+                                id="ot-tbody"
+                                class="divide-y divide-outline-variant/20 text-on-surface">
+
+                                <tr>
+                                    <td
+                                        colspan="8"
+                                        class="py-6 text-center text-on-surface-variant">
+                                        Loading overtime records...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================
+         SUPABASE CLIENT
+    ========================== -->
+    <script src="supabase-client.js"></script>
+
+
+    <!-- =========================
+         PAGE JAVASCRIPT
+    ========================== -->
+    <script>
+
+        let currentUserId = null;
+
+
+        /* ==========================================
+           FETCH OVERTIME RECORDS
+        ========================================== */
+
+        async function fetchOvertime() {
+
+            const tbody = document.getElementById('ot-tbody');
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="py-6 text-center text-on-surface-variant">
+                        Loading overtime records...
+                    </td>
+                </tr>
+            `;
+
+            try {
+
+                const { data, error } = await supabase
+                    .from('overtime_requests')
+                    .select(`
+                        *,
+                        employee:employees(
+                            full_name,
+                            employee_number,
+                            department:departments(name)
+                        )
+                    `)
+                    .order('date', {
+                        ascending: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+
+                    tbody.innerHTML = `
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="py-6 text-center text-on-surface-variant">
+                                No overtime records logged.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+
+                data.forEach(ot => {
+
+                    /* ==========================
+                       ATTACHMENT
+                    ========================== */
+
+                    const attachLink = ot.attachment_url
+                        ? `
+                            <button
+                                type="button"
+                                onclick="downloadAttachment(${JSON.stringify(ot.attachment_url)})"
+                                class="text-xs text-primary underline flex items-center gap-1 hover:text-primary-container">
+
+                                <span class="material-symbols-outlined text-[14px]">
+                                    attachment
+                                </span>
+
+                                Receipt
+                            </button>
+                        `
+                        : `
+                            <span class="text-xs text-on-surface-variant">
+                                --
+                            </span>
+                        `;
+
+
+                    /* ==========================
+                       ACTION BUTTONS
+                    ========================== */
+
+                    let actionBtns = '';
+
+                    if (ot.status === 'Pending') {
+
+                        actionBtns = `
+                            <div class="flex justify-end gap-1">
+
+                                <button
+                                    type="button"
+                                    onclick="handleOtStatus(${JSON.stringify(ot.id)}, 'Approved')"
+                                    class="px-2 py-1 bg-[#137333] text-white rounded text-xs font-semibold hover:opacity-90 transition-opacity">
+
+                                    Approve
+
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="handleOtStatus(${JSON.stringify(ot.id)}, 'Rejected')"
+                                    class="px-2 py-1 bg-error text-white rounded text-xs font-semibold hover:opacity-90 transition-opacity">
+
+                                    Reject
+
+                                </button>
+
+                            </div>
+                        `;
+
+                    } else {
+
+                        actionBtns = `
+                            <span class="text-xs font-medium text-on-surface-variant">
+                                ${escapeHtml(ot.status || '--')}
+                            </span>
+                        `;
+
+                    }
+
+
+                    /* ==========================
+                       STATUS STYLE
+                    ========================== */
+
+                    let statusClass = '';
+
+                    if (ot.status === 'Approved') {
+
+                        statusClass = 'bg-[#E6F4EA] text-[#137333]';
+
+                    } else if (ot.status === 'Pending') {
+
+                        statusClass = 'bg-[#FEF7E0] text-[#B06000]';
+
+                    } else if (ot.status === 'Rejected') {
+
+                        statusClass = 'bg-red-100 text-error';
+
+                    } else {
+
+                        statusClass = 'bg-surface-container text-on-surface-variant';
+
+                    }
+
+
+                    /* ==========================
+                       DISPLAY VALUES
+                    ========================== */
+
+                    const employeeName =
+                        ot.employee?.full_name || 'N/A';
+
+                    const employeeNumber =
+                        ot.employee?.employee_number || '';
+
+                    const department =
+                        ot.employee?.department?.name || 'N/A';
+
+                    const overtimeType =
+                        ot.overtime_type || 'Standard';
+
+                    const hours =
+                        Number(ot.hours || 0);
+
+                    const multiplier =
+                        Number(ot.rate_multiplier || 1);
+
+                    const calculatedAmount =
+                        Number(ot.calculated_amount || 0);
+
+
+                    /* ==========================
+                       TABLE ROW
+                    ========================== */
+
+                    const row = document.createElement('tr');
+
+                    row.className =
+                        'hover:bg-surface-container-low transition-colors';
+
+
+                    row.innerHTML = `
+
+                        <td class="py-3 px-4 font-medium">
+                            ${escapeHtml(employeeName)}
+
+                            <span class="text-xs text-on-surface-variant">
+                                (${escapeHtml(employeeNumber)})
+                            </span>
+                        </td>
+
+                        <td class="py-3 px-4 text-xs">
+                            ${formatDate(ot.date)}
+                        </td>
+
+                        <td class="py-3 px-4 font-bold text-xs">
+                            ${hours.toFixed(2)} hrs
+                        </td>
+
+                        <td class="py-3 px-4 text-xs">
+                            ${escapeHtml(overtimeType)}
+                            (${multiplier.toFixed(2)}x)
+                        </td>
+
+                        <td class="py-3 px-4 text-xs font-bold text-primary">
+                            ${formatCurrency(calculatedAmount)}
+                        </td>
+
+                        <td class="py-3 px-4">
+                            ${attachLink}
+                        </td>
+
+                        <td class="py-3 px-4">
+
+                            <span
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold ${statusClass}">
+
+                                ${escapeHtml(ot.status || '--')}
+
+                            </span>
+
+                        </td>
+
+                        <td class="py-3 px-4 text-right">
+                            ${actionBtns}
+                        </td>
+
+                    `;
+
+                    tbody.appendChild(row);
+
+                });
+
+            } catch (err) {
+
+                console.error('fetchOvertime error:', err);
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="8"
+                            class="py-6 text-center text-error">
+
+                            Failed to load overtime records.
+
+                        </td>
+                    </tr>
+                `;
+
+                showToast(
+                    'Failed to load overtime: ' +
+                    (err.message || 'Unknown error'),
+                    'error'
+                );
+            }
+        }
+
+
+        /* ==========================================
+           APPROVE / REJECT OVERTIME
+        ========================================== */
+
+        async function handleOtStatus(otId, newStatus) {
+
+            const action =
+                newStatus === 'Approved'
+                    ? 'approve'
+                    : 'reject';
+
+            const confirmed = confirm(
+                `Are you sure you want to ${action} this overtime request?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            try {
+
+                const { error } = await supabase
+                    .from('overtime_requests')
+                    .update({
+                        status: newStatus,
+                        approved_by: currentUserId,
+                        action_date: new Date().toISOString()
+                    })
+                    .eq('id', otId);
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                showToast(
+                    `Overtime ${newStatus.toLowerCase()} successfully!`,
+                    'success'
+                );
+
+
+                await fetchOvertime();
+
+            } catch (err) {
+
+                console.error('handleOtStatus error:', err);
+
+                showToast(
+                    err.message || 'Action failed.',
+                    'error'
+                );
+            }
+        }
+
+
+        /* ==========================================
+           DOWNLOAD / OPEN ATTACHMENT
+        ========================================== */
+
+        async function downloadAttachment(filePath) {
+
+            if (!filePath) {
+                showToast(
+                    'No attachment is available.',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            try {
+
+                /*
+                 * If attachment_url is already a complete public URL,
+                 * open it directly.
+                 */
+
+                if (
+                    typeof filePath === 'string' &&
+                    (
+                        filePath.startsWith('http://') ||
+                        filePath.startsWith('https://')
+                    )
+                ) {
+
+                    window.open(
+                        filePath,
+                        '_blank',
+                        'noopener,noreferrer'
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * Otherwise treat the value as a path
+                 * inside the overtime-attachments bucket.
+                 */
+
+                const { data, error } = await supabase
+                    .storage
+                    .from('overtime-attachments')
+                    .createSignedUrl(filePath, 60);
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (!data?.signedUrl) {
+                    throw new Error(
+                        'Unable to generate attachment URL.'
+                    );
+                }
+
+
+                window.open(
+                    data.signedUrl,
+                    '_blank',
+                    'noopener,noreferrer'
+                );
+
+            } catch (err) {
+
+                console.error(
+                    'downloadAttachment error:',
+                    err
+                );
+
+                showToast(
+                    'Failed to retrieve file: ' +
+                    (err.message || 'Unknown error'),
+                    'error'
+                );
+            }
+        }
+
+
+        /* ==========================================
+           HTML ESCAPE HELPER
+        ========================================== */
+
+        function escapeHtml(value) {
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+
+        /* ==========================================
+           INITIALIZE PAGE
+        ========================================== */
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            async () => {
+
+                try {
+
+                    const user = await requireAuth([
+                        'admin',
+                        'hr_manager',
+                        'department_manager'
+                    ]);
+
+
+                    if (!user) {
+                        return;
+                    }
+
+
+                    currentUserId = user.id;
+
+                    await fetchOvertime();
+
+                } catch (err) {
+
+                    console.error(
+                        'Overtime page initialization error:',
+                        err
+                    );
+
+                    showToast(
+                        err.message ||
+                        'Failed to initialize overtime page.',
+                        'error'
+                    );
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

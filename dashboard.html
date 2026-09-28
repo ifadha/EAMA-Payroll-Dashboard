@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>EAMA Payroll - Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet"
+    />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Supabase JS v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fcf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f5f2ff",
+                        "surface-container": "#efecff",
+                        "surface-container-high": "#e8e6ff",
+                        "primary": "#644aae",
+                        "primary-container": "#7d63c8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#181934",
+                        "on-surface-variant": "#494552",
+                        "secondary-container": "#e3e1ee",
+                        "outline-variant": "#cac4d3",
+                        "outline": "#7a7583",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md antialiased overflow-x-hidden">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+    <aside
+        class="w-[240px] h-screen bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col z-30 shrink-0 hidden md:flex"
+    >
+
+        <!-- Brand -->
+        <div class="p-4 border-b border-outline-variant/30 flex items-center gap-3">
+
+            <div
+                class="w-8 h-8 rounded bg-primary text-on-primary font-bold flex items-center justify-center text-sm"
+            >
+                E
+            </div>
+
+            <div>
+                <h1 class="text-sm font-bold text-primary leading-tight">
+                    EAMA Payroll
+                </h1>
+
+                <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">
+                    Management System
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-primary font-semibold text-sm"
+                href="dashboard.html"
+            >
+                <span
+                    class="material-symbols-outlined text-[20px]"
+                    style="font-variation-settings: 'FILL' 1;"
+                >
+                    dashboard
+                </span>
+                <span>Dashboard</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="employees.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    badge
+                </span>
+                <span>Employees</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="attendance.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    how_to_reg
+                </span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="leave-management.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    event_busy
+                </span>
+                <span>Leave</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="overtime.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    more_time
+                </span>
+                <span>Overtime</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="payroll.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    payments
+                </span>
+                <span>Payroll</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="payslip.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    description
+                </span>
+                <span>Payslips</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="reports.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    assessment
+                </span>
+                <span>Reports</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="settings.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    settings
+                </span>
+                <span>Settings</span>
+            </a>
+
+            <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-sm"
+                href="audit-log.html"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    history
+                </span>
+                <span>Audit Log</span>
+            </a>
+
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-3 border-t border-outline-variant/30">
+
+            <a
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-error hover:bg-error-container/20 text-sm font-medium transition-colors"
+                href="#"
+                data-action="logout"
+            >
+                <span class="material-symbols-outlined text-[20px]">
+                    logout
+                </span>
+
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+
+        <!-- Header -->
+        <header
+            class="w-full h-16 bg-surface-container-lowest border-b border-outline-variant/30 flex justify-between items-center px-6 shrink-0"
+        >
+
+            <h2 class="text-lg font-bold text-on-surface">
+                Workforce & Payroll Overview
+            </h2>
+
+            <div class="flex items-center gap-3">
+
+                <div class="text-right">
+
+                    <p class="text-xs font-bold text-on-surface auth-user-name">
+                        Loading...
+                    </p>
+
+                    <p class="text-[10px] text-on-surface-variant uppercase auth-user-role">
+                        ---
+                    </p>
+
+                </div>
+
+                <div
+                    class="w-8 h-8 rounded-full bg-primary-container text-on-primary font-bold flex items-center justify-center text-xs"
+                >
+                    U
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-6 bg-surface">
+
+            <div class="max-w-[1440px] mx-auto space-y-6">
+
+                <!-- =================================================
+                     KPI ROW
+                     ================================================= -->
+                <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+
+                    <!-- Total Employees -->
+                    <div
+                        class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Total Employees
+                        </span>
+
+                        <div
+                            class="text-2xl font-bold text-on-surface mt-2"
+                            id="kpi-total-emp"
+                        >
+                            --
+                        </div>
+                    </div>
+
+                    <!-- Present -->
+                    <div
+                        class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Present Today
+                        </span>
+
+                        <div
+                            class="text-2xl font-bold text-[#137333] mt-2"
+                            id="kpi-present-today"
+                        >
+                            --
+                        </div>
+                    </div>
+
+                    <!-- Absent -->
+                    <div
+                        class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Absent Today
+                        </span>
+
+                        <div
+                            class="text-2xl font-bold text-error mt-2"
+                            id="kpi-absent-today"
+                        >
+                            --
+                        </div>
+                    </div>
+
+                    <!-- On Leave -->
+                    <div
+                        class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            On Leave
+                        </span>
+
+                        <div
+                            class="text-2xl font-bold text-[#b06000] mt-2"
+                            id="kpi-on-leave"
+                        >
+                            --
+                        </div>
+                    </div>
+
+                    <!-- Pending OT -->
+                    <div
+                        class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-on-surface-variant font-medium">
+                            Pending OT (Hrs)
+                        </span>
+
+                        <div
+                            class="text-2xl font-bold text-primary mt-2"
+                            id="kpi-pending-ot"
+                        >
+                            --
+                        </div>
+                    </div>
+
+                    <!-- Latest Payroll -->
+                    <div
+                        class="bg-primary text-on-primary p-4 rounded-xl shadow-sm flex flex-col justify-between"
+                    >
+                        <span class="text-xs text-white/80 font-medium">
+                            Latest Net Payroll
+                        </span>
+
+                        <div
+                            class="text-lg font-bold text-white mt-2 truncate"
+                            id="kpi-latest-payroll"
+                        >
+                            LKR 0.00
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     MIDDLE CONTENT
+                     ================================================= -->
+                <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Pending Approvals -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-sm"
+                    >
+
+                        <h3
+                            class="text-sm font-bold text-on-surface uppercase tracking-wider mb-4 flex items-center justify-between"
+                        >
+                            <span>Pending Approvals</span>
+
+                            <span
+                                id="pending-badge"
+                                class="bg-error text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+                            >
+                                0
+                            </span>
+                        </h3>
+
+                        <div
+                            class="space-y-3"
+                            id="alerts-container"
+                        >
+                            <p class="text-xs text-on-surface-variant">
+                                Checking pending items...
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Recent Leave Requests -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-sm lg:col-span-2"
+                    >
+
+                        <div class="flex justify-between items-center mb-4">
+
+                            <h3
+                                class="text-sm font-bold text-on-surface uppercase tracking-wider"
+                            >
+                                Recent Leave Applications
+                            </h3>
+
+                            <a
+                                href="leave-management.html"
+                                class="text-xs text-primary font-semibold hover:underline"
+                            >
+                                View All
+                            </a>
+
+                        </div>
+
+                        <div class="overflow-x-auto">
+
+                            <table class="w-full text-left text-xs">
+
+                                <thead>
+
+                                    <tr
+                                        class="border-b border-outline-variant/30 text-on-surface-variant uppercase font-semibold"
+                                    >
+                                        <th class="pb-2">
+                                            Employee
+                                        </th>
+
+                                        <th class="pb-2">
+                                            Type
+                                        </th>
+
+                                        <th class="pb-2">
+                                            Duration
+                                        </th>
+
+                                        <th class="pb-2">
+                                            Days
+                                        </th>
+
+                                        <th class="pb-2">
+                                            Status
+                                        </th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody
+                                    id="recent-leave-body"
+                                    class="divide-y divide-outline-variant/10 text-on-surface"
+                                >
+
+                                    <tr>
+                                        <td
+                                            colspan="5"
+                                            class="py-4 text-center text-on-surface-variant"
+                                        >
+                                            Loading requests...
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     SUPABASE CLIENT
+     ========================================================= -->
+<script src="supabase-client.js"></script>
+
+
+<!-- =========================================================
+     DASHBOARD LOGIC
+     ========================================================= -->
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    /*
+     * =========================================================
+     * VERIFY SUPABASE CLIENT
+     * =========================================================
+     */
+
+    if (
+        !window.eamaSupabase ||
+        typeof window.eamaSupabase.from !== "function"
+    ) {
+        console.error(
+            "EAMA Payroll: eamaSupabase is not initialized correctly."
+        );
+
+        return;
+    }
+
+
+    /*
+     * =========================================================
+     * AUTHENTICATION
+     * =========================================================
+     */
+
+    const currentUser = await requireAuth([
+        "admin",
+        "hr_manager",
+        "department_manager"
+    ]);
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    /*
+     * =========================================================
+     * TODAY'S DATE
+     * =========================================================
+     */
+
+    const todayISO =
+        typeof formatISODate === "function"
+            ? formatISODate()
+            : new Date().toISOString().split("T")[0];
+
+
+    /*
+     * =========================================================
+     * 1. TOTAL ACTIVE EMPLOYEES
+     * =========================================================
+     */
+
+    try {
+
+        const {
+            count: empCount,
+            error: empError
+        } = await window.eamaSupabase
+            .from("employees")
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+            .eq("status", "Active");
+
+
+        if (empError) {
+            throw empError;
+        }
+
+
+        document.getElementById(
+            "kpi-total-emp"
+        ).textContent = empCount || 0;
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Employee KPI error:",
+            error
+        );
+
+        document.getElementById(
+            "kpi-total-emp"
+        ).textContent = "—";
+
+    }
+
+
+    /*
+     * =========================================================
+     * 2. ATTENDANCE STATISTICS
+     * =========================================================
+     */
+
+    try {
+
+        const {
+            data: attToday,
+            error: attendanceError
+        } = await window.eamaSupabase
+            .from("attendance")
+            .select("status")
+            .eq("date", todayISO);
+
+
+        if (attendanceError) {
+            throw attendanceError;
+        }
+
+
+        let present = 0;
+        let absent = 0;
+        let onLeave = 0;
+
+
+        (attToday || []).forEach((attendance) => {
+
+            const status =
+                String(attendance.status || "")
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                status === "present" ||
+                status === "late"
+            ) {
+                present++;
+            }
+
+
+            if (status === "absent") {
+                absent++;
+            }
+
+
+            if (
+                status === "on leave" ||
+                status === "leave"
+            ) {
+                onLeave++;
+            }
+
+        });
+
+
+        document.getElementById(
+            "kpi-present-today"
+        ).textContent = present;
+
+
+        document.getElementById(
+            "kpi-absent-today"
+        ).textContent = absent;
+
+
+        document.getElementById(
+            "kpi-on-leave"
+        ).textContent = onLeave;
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Attendance KPI error:",
+            error
+        );
+
+        document.getElementById(
+            "kpi-present-today"
+        ).textContent = "—";
+
+        document.getElementById(
+            "kpi-absent-today"
+        ).textContent = "—";
+
+        document.getElementById(
+            "kpi-on-leave"
+        ).textContent = "—";
+
+    }
+
+
+    /*
+     * =========================================================
+     * 3. PENDING OVERTIME HOURS
+     * =========================================================
+     */
+
+    try {
+
+        const {
+            data: pendingOt,
+            error: overtimeError
+        } = await window.eamaSupabase
+            .from("overtime_requests")
+            .select("hours")
+            .eq("status", "Pending");
+
+
+        if (overtimeError) {
+            throw overtimeError;
+        }
+
+
+        const otHours =
+            (pendingOt || []).reduce(
+                (total, row) => {
+                    return total + (
+                        parseFloat(row.hours) || 0
+                    );
+                },
+                0
+            );
+
+
+        document.getElementById(
+            "kpi-pending-ot"
+        ).textContent = otHours.toFixed(1);
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Overtime KPI error:",
+            error
+        );
+
+        document.getElementById(
+            "kpi-pending-ot"
+        ).textContent = "—";
+
+    }
+
+
+    /*
+     * =========================================================
+     * 4. LATEST PAYROLL
+     * =========================================================
+     */
+
+    try {
+
+        const {
+            data: latestPayroll,
+            error: payrollError
+        } = await window.eamaSupabase
+            .from("payroll_periods")
+            .select("total_net")
+            .order("end_date", {
+                ascending: false
+            })
+            .limit(1)
+            .maybeSingle();
+
+
+        if (payrollError) {
+            throw payrollError;
+        }
+
+
+        if (latestPayroll) {
+
+            document.getElementById(
+                "kpi-latest-payroll"
+            ).textContent =
+                formatCurrency(
+                    latestPayroll.total_net
+                );
+
+        } else {
+
+            document.getElementById(
+                "kpi-latest-payroll"
+            ).textContent =
+                "LKR 0.00";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Latest payroll error:",
+            error
+        );
+
+        document.getElementById(
+            "kpi-latest-payroll"
+        ).textContent = "—";
+
+    }
+
+
+    /*
+     * =========================================================
+     * 5. PENDING APPROVALS
+     * =========================================================
+     */
+
+    let pendingLeaveCount = 0;
+    let pendingOtCount = 0;
+
+
+    try {
+
+        const {
+            count,
+            error
+        } = await window.eamaSupabase
+            .from("leave_requests")
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+            .eq("status", "Pending");
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        pendingLeaveCount = count || 0;
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Pending leave count error:",
+            error
+        );
+
+    }
+
+
+    try {
+
+        const {
+            count,
+            error
+        } = await window.eamaSupabase
+            .from("overtime_requests")
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+            .eq("status", "Pending");
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        pendingOtCount = count || 0;
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Pending overtime count error:",
+            error
+        );
+
+    }
+
+
+    const totalPending =
+        pendingLeaveCount +
+        pendingOtCount;
+
+
+    document.getElementById(
+        "pending-badge"
+    ).textContent = totalPending;
+
+
+    const alertsContainer =
+        document.getElementById(
+            "alerts-container"
+        );
+
+
+    alertsContainer.innerHTML = "";
+
+
+    if (totalPending === 0) {
+
+        alertsContainer.innerHTML = `
+            <p class="text-xs text-[#137333] font-medium flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">
+                    check_circle
+                </span>
+                All approvals up to date.
+            </p>
+        `;
+
+    } else {
+
+        if (pendingLeaveCount > 0) {
+
+            alertsContainer.innerHTML += `
+                <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/30 flex justify-between items-center">
+
+                    <div>
+                        <p class="text-xs font-bold text-on-surface">
+                            Leave Requests
+                        </p>
+
+                        <p class="text-[11px] text-on-surface-variant">
+                            ${pendingLeaveCount} pending review
+                        </p>
+                    </div>
+
+                    <a
+                        href="leave-management.html"
+                        class="px-2.5 py-1 bg-primary text-on-primary text-[11px] font-semibold rounded"
+                    >
+                        Review
+                    </a>
+
+                </div>
+            `;
+
+        }
+
+
+        if (pendingOtCount > 0) {
+
+            alertsContainer.innerHTML += `
+                <div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/30 flex justify-between items-center">
+
+                    <div>
+                        <p class="text-xs font-bold text-on-surface">
+                            Overtime Requests
+                        </p>
+
+                        <p class="text-[11px] text-on-surface-variant">
+                            ${pendingOtCount} pending verification
+                        </p>
+                    </div>
+
+                    <a
+                        href="overtime.html"
+                        class="px-2.5 py-1 bg-primary text-on-primary text-[11px] font-semibold rounded"
+                    >
+                        Verify
+                    </a>
+
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    /*
+     * =========================================================
+     * 6. RECENT LEAVE REQUESTS
+     * =========================================================
+     */
+
+    const tbody =
+        document.getElementById(
+            "recent-leave-body"
+        );
+
+
+    try {
+
+        const {
+            data: recentLeaves,
+            error: leaveError
+        } = await window.eamaSupabase
+            .from("leave_requests")
+            .select(`
+                *,
+                employee:employees(
+                    full_name,
+                    employee_number
+                ),
+                leave_type:leave_types(
+                    name
+                )
+            `)
+            .order("created_at", {
+                ascending: false
+            })
+            .limit(5);
+
+
+        if (leaveError) {
+            throw leaveError;
+        }
+
+
+        tbody.innerHTML = "";
+
+
+        if (
+            !recentLeaves ||
+            recentLeaves.length === 0
+        ) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="py-4 text-center text-on-surface-variant"
+                    >
+                        No recent leave requests found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        /*
+         * Status styling
+         */
+
+        const statusStyles = {
+            pending:
+                "bg-[#FEF7E0] text-[#B06000]",
+
+            approved:
+                "bg-[#E6F4EA] text-[#137333]",
+
+            rejected:
+                "bg-red-100 text-error"
+        };
+
+
+        recentLeaves.forEach((leaveRequest) => {
+
+            const status =
+                String(
+                    leaveRequest.status || ""
+                ).trim();
+
+
+            const statusClass =
+                statusStyles[
+                    status.toLowerCase()
+                ] ||
+                "bg-surface-container text-on-surface-variant";
+
+
+            const employeeName =
+                leaveRequest.employee?.full_name ||
+                "N/A";
+
+
+            const employeeNumber =
+                leaveRequest.employee?.employee_number ||
+                "";
+
+
+            const leaveType =
+                leaveRequest.leave_type?.name ||
+                "Leave";
+
+
+            const totalDays =
+                leaveRequest.total_days ??
+                "—";
+
+
+            const startDate =
+                formatDate(
+                    leaveRequest.start_date
+                );
+
+
+            const endDate =
+                formatDate(
+                    leaveRequest.end_date
+                );
+
+
+            const row =
+                document.createElement("tr");
+
+
+            row.className =
+                "hover:bg-surface-container-low transition-colors";
+
+
+            /*
+             * Build cells using textContent so database
+             * values are not interpreted as HTML.
+             */
+
+            const employeeCell =
+                document.createElement("td");
+
+            employeeCell.className =
+                "py-2.5 font-medium";
+
+
+            const employeeNameSpan =
+                document.createElement("span");
+
+            employeeNameSpan.textContent =
+                employeeName;
+
+
+            employeeCell.appendChild(
+                employeeNameSpan
+            );
+
+
+            if (employeeNumber) {
+
+                const numberSpan =
+                    document.createElement("span");
+
+                numberSpan.className =
+                    "text-on-surface-variant text-[10px] ml-1";
+
+                numberSpan.textContent =
+                    `(${employeeNumber})`;
+
+                employeeCell.appendChild(
+                    numberSpan
+                );
+
+            }
+
+
+            const typeCell =
+                document.createElement("td");
+
+            typeCell.className =
+                "py-2.5";
+
+            typeCell.textContent =
+                leaveType;
+
+
+            const durationCell =
+                document.createElement("td");
+
+            durationCell.className =
+                "py-2.5 text-on-surface-variant";
+
+            durationCell.textContent =
+                `${startDate} - ${endDate}`;
+
+
+            const daysCell =
+                document.createElement("td");
+
+            daysCell.className =
+                "py-2.5 font-bold";
+
+            daysCell.textContent =
+                totalDays;
+
+
+            const statusCell =
+                document.createElement("td");
+
+            statusCell.className =
+                "py-2.5";
+
+
+            const statusBadge =
+                document.createElement("span");
+
+            statusBadge.className =
+                `px-2 py-0.5 rounded-full font-semibold text-[10px] ${statusClass}`;
+
+            statusBadge.textContent =
+                status || "Unknown";
+
+
+            statusCell.appendChild(
+                statusBadge
+            );
+
+
+            row.appendChild(employeeCell);
+            row.appendChild(typeCell);
+            row.appendChild(durationCell);
+            row.appendChild(daysCell);
+            row.appendChild(statusCell);
+
+
+            tbody.appendChild(row);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "EAMA Payroll: Recent leave requests error:",
+            error
+        );
+
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="py-4 text-center text-error"
+                >
+                    Unable to load recent leave requests.
+                </td>
+            </tr>
+        `;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
