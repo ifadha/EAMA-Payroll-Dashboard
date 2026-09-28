@@ -330,7 +330,7 @@
                 const {
                     data,
                     error
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('audit_logs')
                     .select('*')
                     .order('created_at', {

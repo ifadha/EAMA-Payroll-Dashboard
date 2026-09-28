@@ -284,7 +284,7 @@
 
     <script>
 
-        const SETTINGS_ID = 'a0000000-0000-0000-0000-000000000001';
+        let settingsRecordId = null;
 
 
         /*
@@ -294,11 +294,11 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .from('company_settings')
                     .select('*')
-                    .eq('id', SETTINGS_ID)
-                    .single();
+                    .order('updated_at', { ascending: false })
+                    .limit(2);
 
                 if (error) {
                     console.error('Settings load error:', error);
@@ -309,7 +309,7 @@
                     return;
                 }
 
-                if (!data) {
+                if (!data || data.length === 0) {
                     showToast(
                         'Company settings record was not found.',
                         'error'
@@ -317,14 +317,25 @@
                     return;
                 }
 
+                if (data.length !== 1) {
+                    showToast(
+                        'Multiple company settings records exist. Ask an administrator to resolve the configuration.',
+                        'error'
+                    );
+                    return;
+                }
+
+                const settings = data[0];
+                settingsRecordId = settings.id;
+
                 const form = document.getElementById('settings-form');
 
-                form.companyName.value = data.company_name || '';
-                form.regNo.value = data.registration_number || '';
-                form.email.value = data.primary_email || '';
-                form.phone.value = data.phone_number || '';
-                form.address.value = data.registered_address || '';
-                form.stdHours.value = data.standard_monthly_hours ?? '';
+                form.companyName.value = settings.company_name || '';
+                form.regNo.value = settings.registration_number || '';
+                form.email.value = settings.primary_email || '';
+                form.phone.value = settings.phone_number || '';
+                form.address.value = settings.registered_address || '';
+                form.stdHours.value = settings.standard_monthly_hours ?? '';
 
             } catch (err) {
 
@@ -355,6 +366,12 @@
                 const form = e.target;
 
                 try {
+
+                    if (!settingsRecordId) {
+                        throw new Error(
+                            'Company settings have not been loaded. Refresh the page and try again.'
+                        );
+                    }
 
                     const companyName = form.companyName.value.trim();
                     const regNo = form.regNo.value.trim();
@@ -390,7 +407,7 @@
                     }
 
 
-                    const { error } = await supabase
+                    const { error } = await window.eamaSupabase
                         .from('company_settings')
                         .update({
                             company_name: companyName,
@@ -400,7 +417,7 @@
                             registered_address: address,
                             standard_monthly_hours: stdHours
                         })
-                        .eq('id', SETTINGS_ID);
+                        .eq('id', settingsRecordId);
 
                     if (error) {
                         throw error;

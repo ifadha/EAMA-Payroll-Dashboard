@@ -383,43 +383,12 @@
                     }
 
 
-                    // ========================================================
-                    // Create Fallback Profile If Missing
-                    // ========================================================
-
                     if (!profile) {
+                        await window.eamaSupabase.auth.signOut();
 
-                        const fallbackRole =
-                            email.toLowerCase().includes('admin')
-                                ? 'admin'
-                                : email.toLowerCase().includes('hr')
-                                    ? 'hr_manager'
-                                    : 'employee';
-
-
-                        const {
-                            data: newProfile,
-                            error: insertError
-                        } = await window.eamaSupabase
-                            .from('user_profiles')
-                            .insert([{
-                                id: data.user.id,
-                                email: email,
-                                full_name:
-                                    data.user.user_metadata?.full_name ||
-                                    email.split('@')[0],
-                                role: fallbackRole
-                            }])
-                            .select()
-                            .single();
-
-
-                        if (insertError) {
-                            throw insertError;
-                        }
-
-
-                        profile = newProfile;
+                        throw new Error(
+                            'No EAMA profile is linked to this account. Contact an administrator to provision access.'
+                        );
 
                     }
 

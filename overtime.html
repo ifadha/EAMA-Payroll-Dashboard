@@ -253,7 +253,7 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .from('overtime_requests')
                     .select(`
                         *,
@@ -519,7 +519,7 @@
 
             try {
 
-                const { error } = await supabase
+                const { error } = await window.eamaSupabase
                     .from('overtime_requests')
                     .update({
                         status: newStatus,
@@ -600,7 +600,7 @@
                  * inside the overtime-attachments bucket.
                  */
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .storage
                     .from('overtime-attachments')
                     .createSignedUrl(filePath, 60);

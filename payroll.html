@@ -621,7 +621,7 @@
                 const {
                     data,
                     error
-                } = await supabase
+                } = await window.eamaSupabase
                     .from("payroll_periods")
                     .select("*")
                     .order("start_date", {
@@ -793,7 +793,7 @@
                 workflowStage !== 2;
 
             btnPay.disabled =
-                workflowStage < 3;
+                workflowStage !== 3;
 
 
             /* Fetch payroll records */
@@ -801,7 +801,7 @@
             const {
                 data: records,
                 error
-            } = await supabase
+            } = await window.eamaSupabase
                 .from("payroll_records")
                 .select("*, payroll_items(*)")
                 .eq("payroll_period_id", periodId)
@@ -1160,7 +1160,7 @@
                 const {
                     data,
                     error
-                } = await supabase.rpc(
+                } = await window.eamaSupabase.rpc(
                     "generate_monthly_payroll",
                     {
                         p_period_id: periodId
@@ -1261,7 +1261,7 @@
 
                 const {
                     error
-                } = await supabase.rpc(
+                } = await window.eamaSupabase.rpc(
                     "approve_payroll_period",
                     {
                         p_period_id: periodId
@@ -1354,7 +1354,7 @@
                 const {
                     data,
                     error
-                } = await supabase.rpc(
+                } = await window.eamaSupabase.rpc(
                     "generate_period_payslips",
                     {
                         p_period_id: periodId
@@ -1468,7 +1468,7 @@
                     const {
                         data,
                         error
-                    } = await supabase
+                    } = await window.eamaSupabase
                         .from("payroll_periods")
                         .insert([{
                             period_name: periodName,

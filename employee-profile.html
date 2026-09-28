@@ -142,7 +142,7 @@
             <!-- Metric Cards -->
             <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                <div id="salary-basic-card" class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
                     <span class="text-xs text-on-surface-variant font-medium">
                         Basic Salary
                     </span>
@@ -170,7 +170,7 @@
                 </div>
 
 
-                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                <div id="leave-balance-card" class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
                     <span class="text-xs text-on-surface-variant font-medium">
                         Leave Remaining (Year)
                     </span>
@@ -184,7 +184,7 @@
                 </div>
 
 
-                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
+                <div id="salary-ot-card" class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm">
                     <span class="text-xs text-on-surface-variant font-medium">
                         Hourly OT Rate
                     </span>
@@ -201,7 +201,7 @@
 
 
             <!-- Salary History -->
-            <section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden p-5 space-y-4">
+            <section id="salary-history-section" class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden p-5 space-y-4">
 
                 <div class="flex items-center justify-between gap-3">
 
@@ -418,11 +418,18 @@
     let currentEmployeeId =
         new URLSearchParams(window.location.search).get('id');
 
+        let currentProfileRole = null;
+
 
     /*
      * Open / close salary modal
      */
     function openSalaryModal() {
+
+            if (currentProfileRole === 'department_manager') {
+                showToast('Department managers cannot access compensation details.', 'error');
+                return;
+            }
 
         if (!currentEmployeeId) {
             showToast('No employee selected.', 'error');
@@ -497,21 +504,30 @@
         }
 
 
+        const profileSelect =
+            currentProfileRole === 'department_manager'
+                ? `
+                    *,
+                    department:departments(name),
+                    designation:designations(title)
+                `
+                : `
+                    *,
+                    department:departments(name),
+                    designation:designations(title),
+                    salary_history(*),
+                    leave_balances(
+                        *,
+                        leave_type:leave_types(name)
+                    )
+                `;
+
         const {
             data: emp,
             error
-        } = await supabase
+        } = await window.eamaSupabase
             .from('employees')
-            .select(`
-                *,
-                department:departments(name),
-                designation:designations(title),
-                salary_history(*),
-                leave_balances(
-                    *,
-                    leave_type:leave_types(name)
-                )
-            `)
+            .select(profileSelect)
             .eq('id', currentEmployeeId)
             .maybeSingle();
 
@@ -812,6 +828,11 @@
 
             }
 
+            if (currentProfileRole === 'department_manager') {
+                showToast('Department managers cannot modify compensation.', 'error');
+                return;
+            }
+
 
             const form = event.target;
 
@@ -883,7 +904,7 @@
                 const {
                     data: currentSalary,
                     error: currentSalaryError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('salary_history')
                     .select('id,effective_from,effective_to')
                     .eq('employee_id', currentEmployeeId)
@@ -942,7 +963,7 @@
 
                     const {
                         error: closeError
-                    } = await supabase
+                    } = await window.eamaSupabase
                         .from('salary_history')
                         .update({
                             effective_to: previousDate
@@ -962,7 +983,7 @@
                  */
                 const {
                     error: insertError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('salary_history')
                     .insert([{
                         employee_id: currentEmployeeId,
@@ -1030,6 +1051,20 @@
 
             if (!user) {
                 return;
+            }
+
+            currentProfileRole = user.profile?.role || null;
+
+            if (currentProfileRole === 'department_manager') {
+                [
+                    'update-compensation-btn',
+                    'salary-basic-card',
+                    'salary-ot-card',
+                    'leave-balance-card',
+                    'salary-history-section'
+                ].forEach(id => {
+                    document.getElementById(id)?.classList.add('hidden');
+                });
             }
 
 

@@ -628,7 +628,7 @@
                 const {
                     data: balances,
                     error: balanceError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('leave_balances')
                     .select('*, leave_type:leave_types(name)')
                     .eq('employee_id', myEmpRecord.id)
@@ -701,7 +701,7 @@
                 const {
                     data: leaveTypes,
                     error: leaveTypeError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('leave_types')
                     .select('id, name')
                     .order('name');
@@ -766,7 +766,7 @@
                 const {
                     data: attendance,
                     error: attendanceError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('attendance')
                     .select('*')
                     .eq('employee_id', myEmpRecord.id)
@@ -876,12 +876,12 @@
                 const {
                     data: latestPayslip,
                     error: payslipError
-                } = await supabase
+                } = await window.eamaSupabase
                     .from('payslips')
                     .select(`
                         *,
-                        payroll_record:payroll_records(*),
-                        payroll_period:payroll_periods(period_name)
+                        period_name,
+                        payroll_record:payroll_records(*)
                     `)
                     .eq('employee_id', myEmpRecord.id)
                     .order('created_at', {
@@ -920,8 +920,10 @@
                     const record =
                         latestPayslip.payroll_record || {};
 
-                    const period =
-                        latestPayslip.payroll_period || {};
+                    const periodName =
+                        latestPayslip.period_name ||
+                        latestPayslip.payroll_period_id ||
+                        '--';
 
 
                     payslipContainer.innerHTML = `
@@ -930,7 +932,7 @@
                             <div class="flex justify-between gap-3">
                                 <span>Period:</span>
                                 <strong>
-                                    ${escapeHTML(period.period_name || '--')}
+                                    ${escapeHTML(periodName)}
                                 </strong>
                             </div>
 
@@ -1075,7 +1077,7 @@
 
                         const {
                             error
-                        } = await supabase
+                        } = await window.eamaSupabase
                             .from('leave_requests')
                             .insert([
                                 {
@@ -1267,7 +1269,7 @@
 
                             const {
                                 error: uploadError
-                            } = await supabase.storage
+                            } = await window.eamaSupabase.storage
                                 .from(
                                     'overtime-attachments'
                                 )
@@ -1319,7 +1321,7 @@
 
                         const {
                             error
-                        } = await supabase
+                        } = await window.eamaSupabase
                             .from('overtime_requests')
                             .insert([
                                 {
@@ -1360,7 +1362,7 @@
                              */
                             if (uploadedPath) {
 
-                                await supabase.storage
+                                await window.eamaSupabase.storage
                                     .from(
                                         'overtime-attachments'
                                     )

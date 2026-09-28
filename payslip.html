@@ -440,7 +440,7 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .from('payroll_periods')
                     .select('id, period_name, status, start_date')
                     .order('start_date', {
@@ -533,7 +533,7 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
 
                     .from('payslips')
 
@@ -1079,8 +1079,7 @@
                     const user =
                         await requireAuth([
                             'admin',
-                            'hr_manager',
-                            'department_manager'
+                            'hr_manager'
                         ]);
 
 

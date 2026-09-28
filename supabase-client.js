@@ -17,12 +17,47 @@
     // ------------------------------------------------------------------------
 
     const SUPABASE_URL =
-        window.ENV_SUPABASE_URL ||
-        'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
+        typeof window.ENV_SUPABASE_URL === 'string'
+            ? window.ENV_SUPABASE_URL.trim()
+            : '';
 
     const SUPABASE_ANON_KEY =
-        window.ENV_SUPABASE_ANON_KEY ||
-        'YOUR_SUPABASE_ANON_KEY';
+        typeof window.ENV_SUPABASE_ANON_KEY === 'string'
+            ? window.ENV_SUPABASE_ANON_KEY.trim()
+            : '';
+
+
+    function showConfigurationError() {
+
+        const show = () => {
+
+            if (
+                !document.body ||
+                document.getElementById('eama-config-error')
+            ) {
+                return;
+            }
+
+            const banner = document.createElement('div');
+
+            banner.id = 'eama-config-error';
+            banner.setAttribute('role', 'alert');
+            banner.textContent =
+                'Supabase is not configured. Set the project URL and public anon key before using this application.';
+            banner.style.cssText =
+                'position:fixed;inset:0 0 auto;z-index:10000;padding:16px 20px;' +
+                'background:#ba1a1a;color:#fff;font:600 14px/1.5 sans-serif;' +
+                'text-align:center;box-shadow:0 2px 12px #0003;';
+
+            document.body.appendChild(banner);
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', show, { once: true });
+        } else {
+            show();
+        }
+    }
 
 
     // ------------------------------------------------------------------------
@@ -46,23 +81,35 @@
     // VALIDATE CONFIGURATION
     // ------------------------------------------------------------------------
 
-    if (
-        !SUPABASE_URL ||
-        SUPABASE_URL.includes('YOUR_SUPABASE_PROJECT_ID')
-    ) {
-        console.error(
-            'CRITICAL: SUPABASE_URL is not configured. ' +
-            'Replace YOUR_SUPABASE_PROJECT_ID with your actual Supabase project ID.'
-        );
+    let parsedSupabaseUrl = null;
+
+    try {
+        parsedSupabaseUrl = new URL(SUPABASE_URL);
+    } catch (_) {
+        // The visible configuration error below explains the required setup.
     }
 
-    if (
-        !SUPABASE_ANON_KEY ||
-        SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY'
-    ) {
-        console.error(
-            'CRITICAL: SUPABASE_ANON_KEY is not configured.'
+    const isSecureEndpoint =
+        parsedSupabaseUrl?.protocol === 'https:' ||
+        (
+            parsedSupabaseUrl?.protocol === 'http:' &&
+            ['localhost', '127.0.0.1'].includes(parsedSupabaseUrl.hostname)
         );
+
+    const hasValidConfiguration =
+        parsedSupabaseUrl &&
+        isSecureEndpoint &&
+        !parsedSupabaseUrl.hostname.includes('YOUR_SUPABASE_PROJECT_ID') &&
+        typeof SUPABASE_ANON_KEY === 'string' &&
+        SUPABASE_ANON_KEY.trim().length > 0 &&
+        SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+    if (!hasValidConfiguration) {
+        window.eamaSupabase = null;
+        window.db = null;
+        console.error('CRITICAL: Supabase project configuration is missing or invalid.');
+        showConfigurationError();
+        return;
     }
 
 
@@ -73,10 +120,23 @@
     // Store the client under a DIFFERENT name from window.supabase.
     // ------------------------------------------------------------------------
 
-    window.eamaSupabase = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
+    if (
+        !window.eamaSupabase ||
+        typeof window.eamaSupabase.from !== 'function'
+    ) {
+        try {
+            window.eamaSupabase = window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY
+            );
+        } catch (error) {
+            window.eamaSupabase = null;
+            window.db = null;
+            console.error('CRITICAL: Supabase client initialization failed.', error);
+            showConfigurationError();
+            return;
+        }
+    }
 
 
     // Make a short alias available globally.
@@ -467,9 +527,7 @@
             console.error(
                 'Authentication failed: Supabase client unavailable.'
             );
-
-            window.location.href =
-                'login.html';
+            showConfigurationError();
 
             return null;
         }

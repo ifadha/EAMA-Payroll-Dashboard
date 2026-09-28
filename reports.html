@@ -270,7 +270,7 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .from('payroll_periods')
                     .select('id, period_name')
                     .order('start_date', {
@@ -371,7 +371,7 @@
 
             try {
 
-                const { data, error } = await supabase
+                const { data, error } = await window.eamaSupabase
                     .from('payroll_records')
                     .select('*')
                     .eq('payroll_period_id', periodId)
@@ -485,7 +485,11 @@
                 return '';
             }
 
-            const stringValue = String(value);
+            let stringValue = String(value);
+
+            if (/^[\s]*[=+\-@]/.test(stringValue)) {
+                stringValue = `'${stringValue}`;
+            }
 
             return `"${stringValue.replace(/"/g, '""')}"`;
 

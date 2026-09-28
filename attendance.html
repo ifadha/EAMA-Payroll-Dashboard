@@ -317,7 +317,7 @@
         }
 
         async function loadEmployeesDropdown() {
-            const { data: emps, error } = await supabase
+            const { data: emps, error } = await window.eamaSupabase
                 .from('employees')
                 .select('id, full_name, employee_number')
                 .eq('status', 'Active')
@@ -334,11 +334,11 @@
             select.innerHTML = '<option value="">Select Employee...</option>';
 
             (emps || []).forEach(e => {
-                select.innerHTML += `
-                    <option value="${e.id}">
-                        ${e.full_name} (${e.employee_number})
-                    </option>
-                `;
+                const option = document.createElement('option');
+                option.value = e.id;
+                option.textContent =
+                    `${e.full_name} (${e.employee_number})`;
+                select.appendChild(option);
             });
         }
 
@@ -347,7 +347,7 @@
 
             if (!d) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await window.eamaSupabase
                 .from('attendance')
                 .select(`
                     *,
@@ -422,37 +422,47 @@
                     <tr class="hover:bg-surface-container-low transition-colors">
 
                         <td class="py-3 px-4 font-medium">
-                            ${a.employee?.full_name || 'N/A'}
+                            ${escapeHtml(a.employee?.full_name || 'N/A')}
                             <span class="text-xs text-on-surface-variant">
-                                (${a.employee?.employee_number || ''})
+                                (${escapeHtml(a.employee?.employee_number || '')})
                             </span>
                         </td>
 
                         <td class="py-3 px-4 text-xs">
-                            ${a.employee?.department?.name || 'N/A'}
+                            ${escapeHtml(a.employee?.department?.name || 'N/A')}
                         </td>
 
                         <td class="py-3 px-4 text-xs font-mono">
-                            ${a.check_in || '--:--'}
+                            ${escapeHtml(a.check_in || '--:--')}
                         </td>
 
                         <td class="py-3 px-4 text-xs font-mono">
-                            ${a.check_out || '--:--'}
+                            ${escapeHtml(a.check_out || '--:--')}
                         </td>
 
                         <td class="py-3 px-4 font-bold text-xs">
-                            ${a.total_hours || 0} hrs
+                            ${escapeHtml(a.total_hours ?? 0)} hrs
                         </td>
 
                         <td class="py-3 px-4">
                             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusClass}">
-                                ${a.status}
+                                ${escapeHtml(a.status)}
                             </span>
                         </td>
 
                     </tr>
                 `;
             });
+        }
+
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         document
@@ -503,7 +513,7 @@
 
                 try {
 
-                    const { error } = await supabase
+                    const { error } = await window.eamaSupabase
                         .from('attendance')
                         .upsert(
                             {
